@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "MultiStreamViewer",
   "resources": {
-    "hash": "sha256-xvXL1xmRKmYFfYgOZlOggmkNX66r9C37VnFV7cya6hQ=",
+    "hash": "sha256-qYSbnqdn0g5o58khRBzTngnU3p7DS+8CRQ1NcCvERfU=",
     "fingerprinting": {
       "Microsoft.AspNetCore.Authorization.n7we7nbch1.wasm": "Microsoft.AspNetCore.Authorization.wasm",
       "Microsoft.AspNetCore.Components.waskkzx0nn.wasm": "Microsoft.AspNetCore.Components.wasm",
@@ -222,8 +222,8 @@
       "icudt_CJK.tjcz0u77k5.dat": "icudt_CJK.dat",
       "icudt_EFIGS.tptq2av103.dat": "icudt_EFIGS.dat",
       "icudt_no_CJK.lfu7j35m59.dat": "icudt_no_CJK.dat",
-      "MultiStreamViewer.uoty5e9zs3.wasm": "MultiStreamViewer.wasm",
-      "MultiStreamViewer.1l5n4myruh.pdb": "MultiStreamViewer.pdb"
+      "MultiStreamViewer.mofva0t1n2.wasm": "MultiStreamViewer.wasm",
+      "MultiStreamViewer.9gemnxsz3o.pdb": "MultiStreamViewer.pdb"
     },
     "jsModuleNative": {
       "dotnet.native.rtblh4npr3.js": "sha256-HyBzcYNpT2l19+f1bpjNOa1oFoLe3K4JIQ6GsFK5m6I="
@@ -454,10 +454,10 @@
       "WindowsBase.u25hol0de4.wasm": "sha256-CgB28KCiYKHd4yK6IM0PJ526P7IbRCpNkGTqn+cLwxs=",
       "mscorlib.brg9pkj3je.wasm": "sha256-FzZwzxUYYyg3qxc7Km8r50UKAmRWrIeckSFG1NTHKNU=",
       "netstandard.wuzd3f1y6v.wasm": "sha256-yAXc0deBIRkWTVXqADZfhgZtrxGgJCIbZYVtA0NjvdM=",
-      "MultiStreamViewer.uoty5e9zs3.wasm": "sha256-MsjvcwD+8vPFU/ZZbY8n6if3XbmmK7JXUYyZmcB4tps="
+      "MultiStreamViewer.mofva0t1n2.wasm": "sha256-2kRHO6NDbKOpNpfOOZ8S4u31xOD3a3iZafnOveiGonU="
     },
     "pdb": {
-      "MultiStreamViewer.1l5n4myruh.pdb": "sha256-+wf8aa7yEl78vuCBCPuv1I5+KxgS49gkzJEFC1KvLkc="
+      "MultiStreamViewer.9gemnxsz3o.pdb": "sha256-qQ2o4RA0B1VFS21LAxTtok6r+TbV7Uz7kdPR3TsvfLU="
     },
     "libraryInitializers": {
       "_content/Microsoft.FluentUI.AspNetCore.Components/Microsoft.FluentUI.AspNetCore.Components.lib.module.js": "sha256-saocpjMzEV/5RzpPqa9RdvQ2/NJEkHJesyHry6qfD4U="

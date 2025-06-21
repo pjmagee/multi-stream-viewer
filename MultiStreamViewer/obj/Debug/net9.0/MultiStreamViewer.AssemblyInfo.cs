@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MultiStreamViewer")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ae5a2e44db66150358e53bbd40d0765fc94aaeb0")]
 [assembly: System.Reflection.AssemblyProductAttribute("MultiStreamViewer")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MultiStreamViewer")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
