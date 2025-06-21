@@ -11,6 +11,17 @@
 			"group": "build",
 			"isBackground": true,
 			"problemMatcher": []
+		},
+		{
+			"label": "Run MultiStreamViewer",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"watch"
+			],
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": []
 		}
 	]
 }

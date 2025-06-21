@@ -9,7 +9,7 @@ public class StreamService
     public LayoutMode CurrentLayout { get; set; } = LayoutMode.Grid;
     public ChatDisplayMode ChatMode { get; set; } = ChatDisplayMode.Pane;
     public ChatPanePosition ChatPosition { get; set; } = ChatPanePosition.Right;
-    public bool IsChatPaneVisible { get; set; } = true;
+    public bool IsChatPaneVisible { get; set; } = false;
 
     public event Action? StreamsChanged;
     public event Action? LayoutChanged;

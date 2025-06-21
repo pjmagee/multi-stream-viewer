@@ -4,18 +4,14 @@
 
 <div id="streams-container" class="streams-container @GetLayoutClass()">
     @if (StreamService.Streams.Any())
-    {         
-        @if (StreamService.CurrentLayout == LayoutMode.Grid)
+    {           @if (StreamService.CurrentLayout == LayoutMode.Grid)
         {
-            <FluentStack Orientation="Orientation.Horizontal" Wrap="true" HorizontalAlignment="HorizontalAlignment.Center"
-                VerticalAlignment="VerticalAlignment.Stretch">
-                @foreach (var stream in StreamService.Streams)
-                {
-                    <div class="stack-item">
-                        <StreamCard Stream="stream" />
-                    </div>
-                }
-            </FluentStack>
+            @foreach (var stream in StreamService.Streams)
+            {
+                <div class="stack-item">
+                    <StreamCard Stream="stream" />
+                </div>
+            }
         }
         else
         {

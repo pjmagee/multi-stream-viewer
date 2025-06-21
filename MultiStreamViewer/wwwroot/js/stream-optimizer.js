@@ -44,22 +44,27 @@ window.streamOptimizer = {
                 bestRows = rows;
             }
         }
-        
-        // Apply the optimal dimensions to all stream cards
+          // Apply the optimal dimensions to all stream cards
         const streamCards = container.querySelectorAll('.stream-card');
         const stackItems = container.querySelectorAll('.stack-item');
         
+        // Calculate flex basis as percentage for equal distribution
+        const flexBasis = Math.floor(100 / bestColumns);
+        
         streamCards.forEach(card => {
-            card.style.width = Math.floor(bestWidth) + 'px';
             card.style.height = Math.floor(bestHeight) + 'px';
-            card.style.minWidth = Math.floor(bestWidth) + 'px';
             card.style.minHeight = Math.floor(bestHeight) + 'px';
+            // Remove fixed width to allow flexbox to control width
+            card.style.width = '';
+            card.style.minWidth = '';
         });
         
         stackItems.forEach(item => {
-            item.style.flex = `0 0 ${Math.floor(bestWidth)}px`;
-            item.style.width = Math.floor(bestWidth) + 'px';
+            // Use flex basis percentage for equal distribution
+            item.style.flex = `0 1 calc(${flexBasis}% - ${8 * (bestColumns - 1) / bestColumns}px)`;
             item.style.height = Math.floor(bestHeight) + 'px';
+            // Remove fixed width to allow flexbox to control width
+            item.style.width = '';
         });
         
         // Apply iframe dimensions to maintain aspect ratio

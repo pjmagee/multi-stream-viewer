@@ -43,9 +43,7 @@ public class StreamInfo
         StreamerName = streamerName;
         EmbedUrl = GetEmbedUrl(platform, streamerName);
         ChatUrl = GetChatUrl(platform, streamerName);
-    }
-
-    /// <summary>
+    }    /// <summary>
     /// Gets the appropriate embed URL for the streaming platform
     /// 
     /// Platform Requirements:

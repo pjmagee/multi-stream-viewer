@@ -13,27 +13,29 @@
     flex-wrap: wrap;
     gap: 8px;
     align-content: flex-start;
+    justify-content: center;
 }
 
-.stack-item {
-    min-height: 450px; /* Ensure consistent minimum height */
+.grid-container > .stack-item {
+    min-height: 300px;
     display: flex;
     transition: all 0.3s ease;
-    flex: 1 1 calc(50% - 4px); /* Default to 2 columns with gap */
-    min-width: 400px; /* Minimum width for proper video display */
+    flex: 1 1 auto;
+    min-width: 320px;
+    max-width: 100%;
 }
 
 .stacked-container {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 8px;
     height: 100%;
 }
 
 .horizontal-container {
     display: flex;
     flex-direction: row;
-    gap: 2px;
+    gap: 8px;
     overflow-x: auto;
     height: 100%;
     align-items: stretch;
