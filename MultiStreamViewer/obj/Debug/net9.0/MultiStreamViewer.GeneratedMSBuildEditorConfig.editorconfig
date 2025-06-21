@@ -30,33 +30,13 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/multi-stream-viewer/MultiStreamViewer/Components/_Imports.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xfSW1wb3J0cy5yYXpvcg==
+[D:/multi-stream-viewer/MultiStreamViewer/Components/LayoutControls.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRDb250cm9scy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/multi-stream-viewer/MultiStreamViewer/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
-
-[D:/multi-stream-viewer/MultiStreamViewer/Components/ChatPane.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xDaGF0UGFuZS5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = b-6c1dbyhoi6
-
-[D:/multi-stream-viewer/MultiStreamViewer/Components/ManageStreamsDialog.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xNYW5hZ2VTdHJlYW1zRGlhbG9nLnJhem9y
-build_metadata.AdditionalFiles.CssScope = b-plx7uy9bxq
-
-[D:/multi-stream-viewer/MultiStreamViewer/Components/StreamCard.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTdHJlYW1DYXJkLnJhem9y
-build_metadata.AdditionalFiles.CssScope = b-46wumff9yb
-
-[D:/multi-stream-viewer/MultiStreamViewer/Components/StreamsContainer.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTdHJlYW1zQ29udGFpbmVyLnJhem9y
-build_metadata.AdditionalFiles.CssScope = b-fps8j851q1
-
-[D:/multi-stream-viewer/MultiStreamViewer/Layout/MainLayout.razor]
-build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE1haW5MYXlvdXQucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = b-t24dxn0a7l
 
 [D:/multi-stream-viewer/MultiStreamViewer/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
