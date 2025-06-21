@@ -1,6 +1,5 @@
-@using MultiStreamViewer.Models
-@using MultiStreamViewer.Services
 @inject StreamService StreamService
+@implements IDisposable
 
 <div class="chat-pane">
     <FluentCard>
@@ -13,7 +12,7 @@
                               Title="Chat settings" />
                 <FluentButton IconStart="@(new Icons.Regular.Size16.Dismiss())"
                               Appearance="Appearance.Stealth"
-                              OnClick="() => StreamService.ToggleChatPane()"
+                              OnClick="ToggleChatPane"
                               Title="Close chat" />
             </div>
         </div>
@@ -33,12 +32,7 @@
         {
             <FluentTab Label="@stream.StreamerName">
                 <div class="chat-content">
-                    <iframe src="@stream.ChatUrl"
-                            frameborder="0"
-                            scrolling="yes"
-                            width="100%"
-                            height="650">
-                    </iframe>
+                    <iframe src="@stream.ChatUrl" frameborder="0" width="100%" height="650"></iframe>
                 </div>
             </FluentTab>
         }
@@ -56,6 +50,7 @@
 </div>
 
 @code {
+    
     private bool showSettings = false;
     private string selectedPositionString = "Right";
 
@@ -69,7 +64,14 @@
     private void ToggleSettings()
     {
         showSettings = !showSettings;
-    }    public string SelectedPositionString
+    }
+
+    private void ToggleChatPane()
+    {
+        StreamService.ToggleChatPane();
+    }
+
+    string SelectedPositionString
     {
         get => selectedPositionString;
         set
@@ -78,7 +80,9 @@
             var position = Enum.Parse<ChatPanePosition>(value);
             StreamService.SetChatPosition(position);
         }
-    }    public void Dispose()
+    }    
+    
+    public void Dispose()
     {
         StreamService.StreamsChanged -= StateHasChanged;
         StreamService.ChatSettingsChanged -= StateHasChanged;

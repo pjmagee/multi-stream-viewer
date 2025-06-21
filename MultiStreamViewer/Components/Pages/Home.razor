@@ -1,105 +1,106 @@
 ﻿@page "/"
 @page "/{*segments}"
-@using MultiStreamViewer.Models
-@using MultiStreamViewer.Services
-@using MultiStreamViewer.Components
-@using Microsoft.AspNetCore.Components.Web
+
+@using MultiStreamViewer.Components.Shared
 @inject StreamService StreamService
 @inject NavigationManager Navigation
-@inject IJSRuntime JSRuntime
 @inject IDialogService DialogService
 @inject IToastService ToastService
+@inject IJSRuntime JsRuntime
+
 @implements IDisposable
 
 <PageTitle>Multi-Stream Viewer</PageTitle>
 
 <div class="main-layout @GetMainLayoutClass()">
     <!-- Chat Pane - Left -->
-    @if (StreamService.ChatMode == ChatDisplayMode.Pane && 
-         StreamService.IsChatPaneVisible && 
+    @if (StreamService.ChatMode == ChatDisplayMode.Pane &&
+         StreamService.IsChatPaneVisible &&
          StreamService.ChatPosition == ChatPanePosition.Left)
     {
-        <ChatPane />
+        <ChatPane/>
     }
 
     <!-- Main Content Area -->
-    <div class="content-area">        <div class="header-section">
+    <div class="content-area">
+        <div class="header-section">
             <div class="app-header">
                 <div class="app-title">
-                    <FluentIcon Value="@(new Icons.Regular.Size20.VideoClip())" Color="Color.Accent" />
-                    <FluentLabel Typo="Typography.Body" class="app-title-text">Multi-Stream Viewer</FluentLabel>
+                    <FluentIcon Value="@(new Icons.Regular.Size20.VideoClip())" Color="Color.Accent"/>
+                    <FluentLabel Typo="Typography.Body" class="app-title-text">
+                        Multi-Stream Viewer
+                    </FluentLabel>
                 </div>
-                
+
                 <div class="header-controls">
-                    <!-- Layout Controls -->
                     <FluentButton IconStart="@(new Icons.Regular.Size16.Grid())"
                                   Appearance="@(StreamService.CurrentLayout == LayoutMode.Grid ? Appearance.Accent : Appearance.Neutral)"
                                   OnClick="() => SetLayout(LayoutMode.Grid)"
-                                  Title="Grid Layout"
-                                  Size="ButtonSize.Small" />
+                                  Title="Grid Layout" />
                     <FluentButton IconStart="@(new Icons.Regular.Size16.ColumnSingle())"
                                   Appearance="@(StreamService.CurrentLayout == LayoutMode.Stacked ? Appearance.Accent : Appearance.Neutral)"
                                   OnClick="() => SetLayout(LayoutMode.Stacked)"
-                                  Title="Stacked Layout"
-                                  Size="ButtonSize.Small" />
+                                  Title="Stacked Layout" />
                     <FluentButton IconStart="@(new Icons.Regular.Size16.TableSimple())"
                                   Appearance="@(StreamService.CurrentLayout == LayoutMode.Horizontal ? Appearance.Accent : Appearance.Neutral)"
                                   OnClick="() => SetLayout(LayoutMode.Horizontal)"
-                                  Title="Horizontal Layout"
-                                  Size="ButtonSize.Small" />
-                    
+                                  Title="Horizontal Layout" />
+
                     <div class="divider"></div>
-                    
-                    <!-- Chat Controls -->
                     <FluentButton IconStart="@(new Icons.Regular.Size16.Chat())"
                                   Appearance="@(StreamService.ChatMode == ChatDisplayMode.Pane ? Appearance.Accent : Appearance.Neutral)"
                                   OnClick="() => SetChatMode(ChatDisplayMode.Pane)"
-                                  Title="Chat Pane"
-                                  Size="ButtonSize.Small" />
+                                  Title="Chat Pane" />
                     <FluentButton IconStart="@(new Icons.Regular.Size16.ChatBubblesQuestion())"
                                   Appearance="@(StreamService.ChatMode == ChatDisplayMode.Attached ? Appearance.Accent : Appearance.Neutral)"
                                   OnClick="() => SetChatMode(ChatDisplayMode.Attached)"
-                                  Title="Chat Attached"
-                                  Size="ButtonSize.Small" />
+                                  Title="Chat Attached" />
+                    
                     @if (StreamService.ChatMode == ChatDisplayMode.Pane)
                     {
-                        <FluentButton IconStart="@(StreamService.IsChatPaneVisible ? new Icons.Regular.Size16.PanelRight() : new Icons.Regular.Size16.PanelLeft())"
-                                      Appearance="Appearance.Stealth"
-                                      OnClick="() => StreamService.ToggleChatPane()"
-                                      Title="@(StreamService.IsChatPaneVisible ? "Hide Chat" : "Show Chat")"
-                                      Size="ButtonSize.Small" />
+                        <FluentButton
+                            IconStart="@(StreamService.IsChatPaneVisible ? new Icons.Regular.Size16.PanelRight() : new Icons.Regular.Size16.PanelLeft())"
+                            Appearance="Appearance.Stealth"
+                            OnClick="() => StreamService.ToggleChatPane()"
+                            Title="@(StreamService.IsChatPaneVisible ? "Hide Chat" : "Show Chat")" />
                     }
-                    
+
                     <div class="divider"></div>
-                    
-                    <!-- Add Stream Controls -->
-                    <FluentSelect TOption="string" 
-                                  Width="100px" 
-                                  @bind-Value="selectedPlatformString" 
-                                  Size="SelectSize.Small"
-                                  PositionMode="SelectPositionMode.Below">
-                        <FluentOption TOption="string" Value="Twitch">Twitch</FluentOption>
-                        <FluentOption TOption="string" Value="YouTube">YouTube</FluentOption>
-                        <FluentOption TOption="string" Value="Kick">Kick</FluentOption>
-                    </FluentSelect>                    <FluentTextField @bind-Value="streamerName" 
-                                     Placeholder="Streamer name..."
-                                     @onkeyup="HandleKeyUp" 
-                                     class="streamer-input" />                    <FluentTextField @bind-Value="patternInput" 
-                                     Placeholder="Bulk: twitch/user/youtube/user"
-                                     @onkeyup="HandlePatternKeyUp" 
+                    <div class="platform-selector">
+                        <FluentButton Appearance="@(SelectedPlatform == StreamPlatform.Twitch ? Appearance.Accent : Appearance.Neutral)"
+                                      OnClick="() => SetSelectedPlatform(StreamPlatform.Twitch)">
+                            <FluentIcon Width="16px" Value="@PlatformIcons.Twitch" />    
+                        </FluentButton>
+                        <FluentButton Appearance="@(SelectedPlatform == StreamPlatform.YouTube ? Appearance.Accent : Appearance.Neutral)"
+                                      OnClick="() => SetSelectedPlatform(StreamPlatform.YouTube)">
+                            <FluentIcon Width="16px" Value="@PlatformIcons.YouTube" />
+                        </FluentButton>
+                        <FluentButton Appearance="@(SelectedPlatform == StreamPlatform.Kick ? Appearance.Accent : Appearance.Neutral)"
+                                      OnClick="() => SetSelectedPlatform(StreamPlatform.Kick)">
+                            <FluentIcon Width="16px" Value="@PlatformIcons.Kick" />
+                        </FluentButton>
+                    </div>
+
+                    <FluentTextField @bind-Value="_user"
+                                     Placeholder="@GetPlaceholderText()"
+                                     @onkeyup="HandleKeyUp"
+                                     class="streamer-input" />
+                    <FluentTextField @bind-Value="_patternInput"
+                                     Placeholder="twitch/user/youtube/user"
+                                     @onkeyup="HandlePatternKeyUp"
                                      class="pattern-input" />
-                    
+
                     @if (StreamService.Streams.Any())
                     {
-                        <div class="divider"></div>                        <FluentButton IconStart="@(new Icons.Regular.Size16.Share())"
+                        <div class="divider"></div>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.Share())"
                                       Appearance="Appearance.Stealth"
                                       OnClick="ShareUrlToClipboard"
-                                      Title="Share URL"
-                                      Size="ButtonSize.Small" />                        <FluentButton IconStart="@(new Icons.Regular.Size16.Settings())"
+                                      Title="Share URL" />
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.Settings())"
                                       Appearance="Appearance.Stealth"
                                       OnClick="OpenManageStreamsDialog"
-                                      Title="Manage Streams"
-                                      Size="ButtonSize.Small" />
+                                      Title="Manage Streams" />
                     }
                 </div>
             </div>
@@ -111,22 +112,23 @@
     </div>
 
     <!-- Chat Pane - Right -->
-    @if (StreamService.ChatMode == ChatDisplayMode.Pane && 
-         StreamService.IsChatPaneVisible && 
+    @if (StreamService.ChatMode == ChatDisplayMode.Pane &&
+         StreamService.IsChatPaneVisible &&
          StreamService.ChatPosition == ChatPanePosition.Right)
     {
-        <ChatPane />    }
+        <ChatPane/>
+    }
 </div>
 
 <!-- Manage Streams Dialog -->
-<FluentDialog @bind-Hidden="@isManageDialogHidden"
+<FluentDialog @bind-Hidden="@_isManageDialogHidden"
               Modal="true"
               TrapFocus="true"
               PreventScroll="true"
               AriaLabel="Manage Streams">
     <FluentDialogHeader ShowDismiss="true">
         <FluentStack VerticalAlignment="VerticalAlignment.Center">
-            <FluentIcon Value="@(new Icons.Regular.Size24.Settings())" />
+            <FluentIcon Value="@(new Icons.Regular.Size24.Settings())"/>
             <FluentLabel Typo="Typography.PaneHeader">
                 Manage Streams
             </FluentLabel>
@@ -141,7 +143,8 @@
                 {
                     <FluentCard class="stream-item">
                         <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" HorizontalGap="12">
-                            <FluentIcon Value="@GetPlatformIcon(stream.Platform)" Color="Color.Accent" />                            <FluentStack Orientation="Orientation.Vertical" VerticalGap="2" Style="flex: 1;">
+                            <FluentIcon Value="@GetPlatformIcon(stream.Platform)" Color="Color.Accent"/>
+                            <FluentStack Orientation="Orientation.Vertical" VerticalGap="2" Style="flex: 1;">
                                 <FluentLabel Typo="Typography.Body" Style="font-weight: 600;">
                                     @stream.StreamerName
                                 </FluentLabel>
@@ -153,7 +156,7 @@
                                           Appearance="Appearance.Stealth"
                                           OnClick="() => RemoveStream(stream)"
                                           Title="Remove Stream"
-                                          Size="ButtonSize.Small" />
+                                          Size="ButtonSize.Small"/>
                         </FluentStack>
                     </FluentCard>
                 }
@@ -173,7 +176,7 @@
         </FluentButton>
         @if (StreamService.Streams.Any())
         {
-            <FluentButton Appearance="Appearance.Accent" 
+            <FluentButton Appearance="Appearance.Accent"
                           IconStart="@(new Icons.Regular.Size16.Delete())"
                           OnClick="ClearAllStreamsFromDialog">
                 Clear All
@@ -183,13 +186,16 @@
 </FluentDialog>
 
 @code {
-    [Parameter] public string? Segments { get; set; }    // Add stream form fields
-    private string selectedPlatformString = "Twitch";
-    private string streamerName = string.Empty;
-    private string patternInput = string.Empty;
-    private bool isManageDialogHidden = true;
+    
+    [Parameter] public string? Segments { get; set; } // Add stream form fields
+    
+    private StreamPlatform _selectedPlatform = StreamPlatform.Twitch;
+    
+    private string _user = string.Empty;
+    private string _patternInput = string.Empty;
+    private bool _isManageDialogHidden = true;
 
-    private StreamPlatform SelectedPlatform => Enum.Parse<StreamPlatform>(selectedPlatformString);
+    private StreamPlatform SelectedPlatform => _selectedPlatform;
 
     protected override void OnInitialized()
     {
@@ -209,7 +215,8 @@
                 // Handle URL parsing errors
                 Console.WriteLine($"Error parsing URL segments: {ex.Message}");
             }
-        }    }
+        }
+    }
 
     private void SetLayout(LayoutMode layout)
     {
@@ -221,18 +228,37 @@
         StreamService.SetChatMode(mode);
     }
 
+    private void SetSelectedPlatform(StreamPlatform platform)
+    {
+        _selectedPlatform = platform;
+    }
+
+    private string GetPlaceholderText()
+    {
+        return SelectedPlatform switch
+        {
+            StreamPlatform.Twitch => "e.g., shroud",
+            StreamPlatform.YouTube => "Video ID (e.g., dQw4w9WgXcQ)",
+            StreamPlatform.Kick => "e.g., trainwreckstv",
+            _ => "Enter identifier..."
+        };
+    }
+
     private async Task ShareUrlToClipboard()
-    {        try
+    {
+        try
         {
             var currentUrl = Navigation.Uri;
-            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", currentUrl);
+            await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", currentUrl);
             ToastService.ShowSuccess("URL copied to clipboard!");
         }
         catch (Exception)
         {
             ToastService.ShowError("Failed to copy URL to clipboard");
         }
-    }    private void ClearAllStreams()
+    }
+
+    private void ClearAllStreams()
     {
         StreamService.ClearAllStreams();
         UpdateUrl();
@@ -240,13 +266,15 @@
 
     private void OpenManageStreamsDialog()
     {
-        isManageDialogHidden = false;
+        _isManageDialogHidden = false;
     }
 
     private void CloseManageDialog()
     {
-        isManageDialogHidden = true;
-    }    private void RemoveStream(StreamInfo stream)
+        _isManageDialogHidden = true;
+    }
+
+    private void RemoveStream(StreamInfo stream)
     {
         StreamService.RemoveStream(stream.Id);
         UpdateUrl();
@@ -256,23 +284,23 @@
     {
         StreamService.ClearAllStreams();
         UpdateUrl();
-        isManageDialogHidden = true;
+        _isManageDialogHidden = true;
     }
 
     private Icon GetPlatformIcon(StreamPlatform platform)
     {
         return platform switch
         {
-            StreamPlatform.Twitch => new Icons.Regular.Size20.Live(),
-            StreamPlatform.YouTube => new Icons.Regular.Size20.VideoClip(),
-            StreamPlatform.Kick => new Icons.Regular.Size20.Sport(),
-            _ => new Icons.Regular.Size20.VideoClip()
+            StreamPlatform.Twitch => PlatformIcons.Twitch,
+            StreamPlatform.YouTube => PlatformIcons.YouTube,
+            StreamPlatform.Kick => PlatformIcons.Kick,
+            _ => PlatformIcons.YouTube
         };
     }
 
     private async Task AddStream()
     {
-        if (string.IsNullOrWhiteSpace(streamerName))
+        if (string.IsNullOrWhiteSpace(_user))
         {
             await DialogService.ShowErrorAsync("Please enter a streamer name.", "Invalid Input");
             return;
@@ -280,8 +308,8 @@
 
         try
         {
-            StreamService.AddStream(SelectedPlatform, streamerName.Trim());
-            streamerName = string.Empty;
+            StreamService.AddStream(SelectedPlatform, _user.Trim());
+            _user = string.Empty;
             UpdateUrl();
         }
         catch (Exception ex)
@@ -292,7 +320,7 @@
 
     private async Task AddFromPattern()
     {
-        if (string.IsNullOrWhiteSpace(patternInput))
+        if (string.IsNullOrWhiteSpace(_patternInput))
         {
             await DialogService.ShowErrorAsync("Please enter a pattern.", "Invalid Input");
             return;
@@ -300,9 +328,9 @@
 
         try
         {
-            var parts = patternInput.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var parts = _patternInput.Split('/', StringSplitOptions.RemoveEmptyEntries);
             var addedCount = 0;
-            
+
             for (int i = 0; i < parts.Length - 1; i += 2)
             {
                 var platformName = parts[i].Trim();
@@ -315,8 +343,8 @@
                 }
             }
 
-            patternInput = string.Empty;
-            
+            _patternInput = string.Empty;
+
             if (addedCount == 0)
             {
                 await DialogService.ShowWarningAsync("No valid streams found. Use format: platform/streamer/platform/streamer", "No Streams Added");
@@ -351,6 +379,7 @@
     private void UpdateUrl()
     {
         var segments = new List<string>();
+
         foreach (var stream in StreamService.Streams)
         {
             segments.Add(stream.Platform.ToString().ToLower());
@@ -367,7 +396,7 @@
             return;
 
         var parts = Segments.Split('/', StringSplitOptions.RemoveEmptyEntries);
-        
+
         for (int i = 0; i < parts.Length - 1; i += 2)
         {
             var platformName = parts[i];
@@ -382,8 +411,11 @@
 
     private string GetMainLayoutClass()
     {
-        var classes = new List<string> { "main-layout" };
-        
+        var classes = new List<string>
+        {
+            "main-layout"
+        };
+
         if (StreamService.ChatMode == ChatDisplayMode.Pane && StreamService.IsChatPaneVisible)
         {
             classes.Add("with-chat-pane");
@@ -391,10 +423,13 @@
         }
 
         return string.Join(" ", classes);
-    }    public void Dispose()
+    }
+
+    public void Dispose()
     {
         StreamService.StreamsChanged -= StateHasChanged;
         StreamService.LayoutChanged -= StateHasChanged;
         StreamService.ChatSettingsChanged -= StateHasChanged;
     }
+
 }

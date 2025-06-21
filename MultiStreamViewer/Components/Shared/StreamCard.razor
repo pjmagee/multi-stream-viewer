@@ -1,17 +1,12 @@
-@using MultiStreamViewer.Models
-@using MultiStreamViewer.Services
-@using Microsoft.FluentUI.AspNetCore.Components
 @inject StreamService StreamService
 
 <div class="stream-container">
     <div class="stream-content @(StreamService.ChatMode == ChatDisplayMode.Attached ? "with-chat" : "")">
         <div class="stream-video">
             <iframe src="@Stream.EmbedUrl" 
-                    frameborder="0" 
-                    allowfullscreen="true" 
-                    scrolling="no" 
+                    frameborder="0"
                     class="stream-iframe"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allow="fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture"
                     loading="lazy">
             </iframe>
         </div>
@@ -19,11 +14,7 @@
         @if (StreamService.ChatMode == ChatDisplayMode.Attached)
         {
             <div class="stream-chat">
-                <iframe src="@Stream.ChatUrl" 
-                        frameborder="0" 
-                        scrolling="yes" 
-                        class="chat-iframe"
-                        loading="lazy">
+                <iframe src="@Stream.ChatUrl" frameborder="0" class="chat-iframe" loading="lazy">
                 </iframe>
             </div>
         }

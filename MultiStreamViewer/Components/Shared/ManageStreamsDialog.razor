@@ -1,6 +1,3 @@
-@using MultiStreamViewer.Models
-@using Microsoft.FluentUI.AspNetCore.Components
-@using Icons = Microsoft.FluentUI.AspNetCore.Components.Icons
 @implements IDialogContentComponent<List<StreamInfo>>
 
 <FluentDialogBody>
@@ -48,58 +45,58 @@
         </FluentButton>
         <FluentButton Appearance="Appearance.Neutral"
                       OnClick="RemoveSelected"
-                      Disabled="@(!selectedStreams.Any())">
-            Remove Selected (@selectedStreams.Count)
+                      Disabled="@(!_selectedStreams.Any())">
+            Remove Selected (@_selectedStreams.Count)
         </FluentButton>
     }
-    <FluentButton Appearance="Appearance.Stealth"
-                  OnClick="Cancel">
+    <FluentButton Appearance="Appearance.Stealth" OnClick="Cancel">
         Cancel
     </FluentButton>
 </FluentDialogFooter>
 
 @code {
+    
     [Parameter] public List<StreamInfo> Content { get; set; } = new();
-    [CascadingParameter] public FluentDialog Dialog { get; set; } = default!;
+    [CascadingParameter] public FluentDialog Dialog { get; set; } = null!;
 
-    private List<StreamInfo> originalStreams = new();
-    private HashSet<StreamInfo> selectedStreams = new();
+    private List<StreamInfo> _originalStreams = new();
+    private readonly HashSet<StreamInfo> _selectedStreams = new();
 
     protected override void OnInitialized()
     {
-        originalStreams = new List<StreamInfo>(Content);
+        _originalStreams = new List<StreamInfo>(Content);
     }
 
     private bool GetStreamSelection(StreamInfo stream)
     {
-        return selectedStreams.Contains(stream);
+        return _selectedStreams.Contains(stream);
     }
 
     private void OnStreamSelectionChanged(StreamInfo stream, bool isSelected)
     {
         if (isSelected)
         {
-            selectedStreams.Add(stream);
+            _selectedStreams.Add(stream);
         }
         else
         {
-            selectedStreams.Remove(stream);
+            _selectedStreams.Remove(stream);
         }
     }
 
     private void RemoveStream(StreamInfo stream)
     {
         Content.Remove(stream);
-        selectedStreams.Remove(stream);
+        _selectedStreams.Remove(stream);
     }
 
     private void RemoveSelected()
     {
-        foreach (var stream in selectedStreams.ToList())
+        foreach (var stream in _selectedStreams.ToList())
         {
             Content.Remove(stream);
         }
-        selectedStreams.Clear();
+        _selectedStreams.Clear();
     }
 
     private async Task ApplyChanges()
@@ -112,14 +109,19 @@
         await Dialog.CloseAsync(DialogResult.Cancel());
     }
 
-    private bool HasChanges => Content.Count != originalStreams.Count || 
-                               !Content.All(s => originalStreams.Any(o => o.StreamerName == s.StreamerName && o.Platform == s.Platform));
+    private bool HasChanges
+    {
+        get
+        {
+            return Content.Count != _originalStreams.Count || !Content.All(s => _originalStreams.Any(o => o.StreamerName == s.StreamerName && o.Platform == s.Platform));
+        }
+    }
 
     private Icon GetPlatformIcon(StreamPlatform platform) => platform switch
     {
-        StreamPlatform.Twitch => new Icons.Regular.Size16.VideoClip(),
-        StreamPlatform.YouTube => new Icons.Regular.Size16.Play(),
-        StreamPlatform.Kick => new Icons.Regular.Size16.Sport(),
-        _ => new Icons.Regular.Size16.VideoClip()
+        StreamPlatform.Twitch => PlatformIcons.Twitch,
+        StreamPlatform.YouTube => PlatformIcons.YouTube,
+        StreamPlatform.Kick => PlatformIcons.Kick,
+        _ => PlatformIcons.YouTube
     };
 }
