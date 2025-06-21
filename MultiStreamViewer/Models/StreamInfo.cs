@@ -51,25 +51,25 @@ public class StreamInfo
     /// Platform Requirements:
     /// - Twitch: streamerName is the channel name (e.g., "shroud")
     /// - YouTube: streamerName should be the Video ID (e.g., "dQw4w9WgXcQ") NOT channel name
-    /// - Kick: streamerName is the channel name (e.g., "trainwreckstv")    /// 
+    /// - Kick: streamerName is the channel name (e.g., "trainwreckstv")
+    /// 
     /// Note: For YouTube, users must provide the specific video ID of the live stream,
     /// not the channel name. This follows YouTube's embed requirements.
-    /// </summary>    
+    /// </summary>
     private static string GetEmbedUrl(StreamPlatform platform, string streamerName)
     {
         return platform switch
         {
             StreamPlatform.Twitch => GetTwitchEmbedUrl(streamerName),
             StreamPlatform.YouTube => $"https://www.youtube.com/embed/{streamerName}?autoplay=0&allow=autoplay; encrypted-media",
-            StreamPlatform.Kick => $"https://player.kick.com/{streamerName}?autoplay=false",
+            StreamPlatform.Kick => $"https://player.kick.com/{streamerName}?autoplay=false&muted=false",
             _ => string.Empty
         };
-    }    
-    
+    }
+
     private static string GetTwitchEmbedUrl(string streamerName)
     {
-        var parentDomain = GetEmbedDomain();
-        return $"https://player.twitch.tv/?channel={streamerName}&parent={parentDomain}&autoplay=false&muted=false";
+        return $"https://player.twitch.tv/?channel={streamerName}&parent={EmbedDomain}&autoplay=false&muted=false";
     }
 
     private static string GetChatUrl(StreamPlatform platform, string streamerName)
@@ -85,39 +85,27 @@ public class StreamInfo
 
     private static string GetTwitchChatUrl(string streamerName)
     {
-        var parentDomain = GetEmbedDomain();
-        return $"https://www.twitch.tv/embed/{streamerName}/chat?parent={parentDomain}";
-    }    
+        return $"https://www.twitch.tv/embed/{streamerName}/chat?parent={EmbedDomain}";
+    }
 
     private static string GetYouTubeChatUrl(string videoId)
     {
-        // For YouTube chat, we need to dynamically determine the embed_domain
-        // Based on the current hosting environment following YouTube's requirements
-
-        // Determine embed domain based on common deployment scenarios
-        var embedDomain = GetEmbedDomain();
-
-        return $"https://www.youtube.com/live_chat?v={videoId}&embed_domain={embedDomain}";
+        return $"https://www.youtube.com/live_chat?v={videoId}&embed_domain={EmbedDomain}";
     }
 
     /// <summary>
     /// Determines the appropriate embed domain for YouTube chat based on deployment environment
     /// This is required by YouTube's embed policies
     /// </summary>
-    private static string GetEmbedDomain()
+    private static string EmbedDomain
     {
-        // For GitHub Pages deployment: 
-        // This should be "pjmagee.github.io" based on your README
-        // For local development: "localhost"
-        // For custom domains: the actual domain
-        
-        // Since this is a static method, we'll set reasonable defaults
-        // In a real application, this could be injected from configuration
-        
-        #if DEBUG
-            return "localhost";
-        #else
-            return "pjmagee.github.io"; // Update this for your GitHub Pages domain
-        #endif
+        get
+        {
+            #if DEBUG
+                return "localhost";
+            #else
+                return "pjmagee.github.io";
+            #endif
+        }
     }
 }
