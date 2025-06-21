@@ -1,0 +1,86 @@
+@using MultiStreamViewer.Models
+@using MultiStreamViewer.Services
+@inject StreamService StreamService
+
+<div class="chat-pane">
+    <FluentCard>
+        <div class="chat-header">
+            <FluentLabel Typo="Typography.H6">Chat</FluentLabel>
+            <div class="chat-controls">
+                <FluentButton IconStart="@(new Icons.Regular.Size16.Settings())"
+                              Appearance="Appearance.Stealth"
+                              OnClick="ToggleSettings"
+                              Title="Chat settings" />
+                <FluentButton IconStart="@(new Icons.Regular.Size16.Dismiss())"
+                              Appearance="Appearance.Stealth"
+                              OnClick="() => StreamService.ToggleChatPane()"
+                              Title="Close chat" />
+            </div>
+        </div>
+
+    @if (showSettings)
+    {
+        <div class="chat-settings">
+            <FluentSelect TOption="string" @bind-Value="@SelectedPositionString" Label="Position">
+                <FluentOption TOption="string" Value="Left">Left</FluentOption>
+                <FluentOption TOption="string" Value="Right">Right</FluentOption>
+            </FluentSelect>
+        </div>
+    }
+
+    <FluentTabs Orientation="Orientation.Horizontal">
+        @foreach (var stream in StreamService.Streams)
+        {
+            <FluentTab Label="@stream.StreamerName">
+                <div class="chat-content">
+                    <iframe src="@stream.ChatUrl"
+                            frameborder="0"
+                            scrolling="yes"
+                            width="100%"
+                            height="650">
+                    </iframe>
+                </div>
+            </FluentTab>
+        }
+
+        @if (!StreamService.Streams.Any())
+        {
+            <FluentTab Label="No Streams">
+                <div class="no-streams">
+                    <FluentLabel>Add some streams to see their chats here!</FluentLabel>
+                </div>
+            </FluentTab>
+        }
+        </FluentTabs>
+</FluentCard>
+</div>
+
+@code {
+    private bool showSettings = false;
+    private string selectedPositionString = "Right";
+
+    protected override void OnInitialized()
+    {
+        selectedPositionString = StreamService.ChatPosition.ToString();
+        StreamService.StreamsChanged += StateHasChanged;
+        StreamService.ChatSettingsChanged += StateHasChanged;
+    }
+
+    private void ToggleSettings()
+    {
+        showSettings = !showSettings;
+    }    public string SelectedPositionString
+    {
+        get => selectedPositionString;
+        set
+        {
+            selectedPositionString = value;
+            var position = Enum.Parse<ChatPanePosition>(value);
+            StreamService.SetChatPosition(position);
+        }
+    }    public void Dispose()
+    {
+        StreamService.StreamsChanged -= StateHasChanged;
+        StreamService.ChatSettingsChanged -= StateHasChanged;
+    }
+}

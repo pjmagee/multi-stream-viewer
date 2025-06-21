@@ -1,0 +1,125 @@
+@using MultiStreamViewer.Models
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Icons = Microsoft.FluentUI.AspNetCore.Components.Icons
+@implements IDialogContentComponent<List<StreamInfo>>
+
+<FluentDialogBody>
+    <div class="manage-streams-content">
+        @if (Content.Any())
+        {
+            <FluentLabel Typo="Typography.Body">Select streams to remove:</FluentLabel>
+            <div class="streams-list">
+                @foreach (var stream in Content)
+                {
+                    <div class="stream-item">
+                        <FluentCheckbox Value="@GetStreamSelection(stream)"
+                                        ValueChanged="@(value => OnStreamSelectionChanged(stream, value))" />
+                        <div class="stream-info">
+                            <FluentIcon Value="@GetPlatformIcon(stream.Platform)" Color="Color.Accent" />
+                            <FluentLabel>@stream.StreamerName</FluentLabel>
+                            <FluentLabel Typo="Typography.Body" Color="Color.Disabled">@stream.Platform</FluentLabel>
+                        </div>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.Dismiss())"
+                                      Appearance="Appearance.Stealth"
+                                      OnClick="@(() => RemoveStream(stream))"
+                                      Title="Remove Stream"
+                                      Size="ButtonSize.Small" />
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-message">
+                <FluentIcon Value="@(new Icons.Regular.Size48.VideoClip())" Color="Color.Disabled" />
+                <FluentLabel Typo="Typography.Body">No streams to manage</FluentLabel>
+            </div>
+        }
+    </div>
+</FluentDialogBody>
+
+<FluentDialogFooter>
+    @if (Content.Any())
+    {
+        <FluentButton Appearance="Appearance.Accent"
+                      OnClick="ApplyChanges"
+                      Disabled="@(!HasChanges)">
+            Apply Changes
+        </FluentButton>
+        <FluentButton Appearance="Appearance.Neutral"
+                      OnClick="RemoveSelected"
+                      Disabled="@(!selectedStreams.Any())">
+            Remove Selected (@selectedStreams.Count)
+        </FluentButton>
+    }
+    <FluentButton Appearance="Appearance.Stealth"
+                  OnClick="Cancel">
+        Cancel
+    </FluentButton>
+</FluentDialogFooter>
+
+@code {
+    [Parameter] public List<StreamInfo> Content { get; set; } = new();
+    [CascadingParameter] public FluentDialog Dialog { get; set; } = default!;
+
+    private List<StreamInfo> originalStreams = new();
+    private HashSet<StreamInfo> selectedStreams = new();
+
+    protected override void OnInitialized()
+    {
+        originalStreams = new List<StreamInfo>(Content);
+    }
+
+    private bool GetStreamSelection(StreamInfo stream)
+    {
+        return selectedStreams.Contains(stream);
+    }
+
+    private void OnStreamSelectionChanged(StreamInfo stream, bool isSelected)
+    {
+        if (isSelected)
+        {
+            selectedStreams.Add(stream);
+        }
+        else
+        {
+            selectedStreams.Remove(stream);
+        }
+    }
+
+    private void RemoveStream(StreamInfo stream)
+    {
+        Content.Remove(stream);
+        selectedStreams.Remove(stream);
+    }
+
+    private void RemoveSelected()
+    {
+        foreach (var stream in selectedStreams.ToList())
+        {
+            Content.Remove(stream);
+        }
+        selectedStreams.Clear();
+    }
+
+    private async Task ApplyChanges()
+    {
+        await Dialog.CloseAsync(DialogResult.Ok(Content));
+    }
+
+    private async Task Cancel()
+    {
+        await Dialog.CloseAsync(DialogResult.Cancel());
+    }
+
+    private bool HasChanges => Content.Count != originalStreams.Count || 
+                               !Content.All(s => originalStreams.Any(o => o.StreamerName == s.StreamerName && o.Platform == s.Platform));
+
+    private Icon GetPlatformIcon(StreamPlatform platform) => platform switch
+    {
+        StreamPlatform.Twitch => new Icons.Regular.Size16.VideoClip(),
+        StreamPlatform.YouTube => new Icons.Regular.Size16.Play(),
+        StreamPlatform.Kick => new Icons.Regular.Size16.Sport(),
+        _ => new Icons.Regular.Size16.VideoClip()
+    };
+}

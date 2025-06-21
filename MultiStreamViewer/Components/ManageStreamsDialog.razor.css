@@ -1,0 +1,42 @@
+.manage-streams-content {
+    min-height: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.streams-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.stream-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border: 1px solid var(--neutral-stroke-divider-rest);
+    border-radius: 6px;
+    background: var(--neutral-fill-secondary-rest);
+}
+
+.stream-item:hover {
+    background: var(--neutral-fill-secondary-hover);
+}
+
+.stream-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.empty-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 40px 20px;
+    text-align: center;
+}

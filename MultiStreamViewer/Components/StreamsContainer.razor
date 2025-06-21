@@ -1,0 +1,99 @@
+@using MultiStreamViewer.Models
+@using MultiStreamViewer.Services
+@inject StreamService StreamService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<div id="streams-container" class="streams-container @GetLayoutClass()">
+    @if (StreamService.Streams.Any())
+    { 
+        
+        @if (StreamService.CurrentLayout == LayoutMode.Grid)
+        {
+            <FluentStack Orientation="Orientation.Horizontal" Wrap="true" HorizontalAlignment="HorizontalAlignment.Center"
+                VerticalAlignment="VerticalAlignment.Stretch">
+                @foreach (var stream in StreamService.Streams)
+                {
+                    <div class="stack-item">
+                        <StreamCard Stream="stream" />
+                    </div>
+                }
+            </FluentStack>
+        }
+        else
+        {
+            @foreach (var stream in StreamService.Streams)
+            {
+                <StreamCard Stream="stream" />
+            }
+        }
+    }    else
+    {
+        <div class="no-streams-message">
+            <div class="empty-content">
+                <FluentIcon Value="@(new Icons.Regular.Size48.VideoClip())" Color="Color.Disabled" />
+                <FluentLabel Typo="Typography.H5">No streams added yet</FluentLabel>
+                <FluentLabel>Add your first stream using the form above to get started!</FluentLabel>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        StreamService.StreamsChanged += OnStreamsChanged;
+        StreamService.LayoutChanged += OnLayoutChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender || StreamService.Streams.Any())
+        {
+            await OptimizeLayout();
+        }
+    }
+
+    private async void OnStreamsChanged()
+    {
+        StateHasChanged();
+        await OptimizeLayout();
+    }
+
+    private async void OnLayoutChanged()
+    {
+        StateHasChanged();
+        await OptimizeLayout();
+    }
+
+    private async Task OptimizeLayout()
+    {
+        try
+        {
+            if (StreamService.CurrentLayout == LayoutMode.Grid && StreamService.Streams.Any())
+            {
+                await JSRuntime.InvokeVoidAsync("streamOptimizer.optimizeStreamLayout", StreamService.Streams.Count);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle JS interop errors gracefully
+            Console.WriteLine($"Layout optimization error: {ex.Message}");
+        }
+    }
+
+    private string GetLayoutClass()
+    {
+        return StreamService.CurrentLayout switch
+        {
+            LayoutMode.Grid => "grid-container",
+            LayoutMode.Stacked => "stacked-container",
+            LayoutMode.Horizontal => "horizontal-container",
+            _ => "grid-container"
+        };
+    }    public void Dispose()
+    {
+        StreamService.StreamsChanged -= OnStreamsChanged;
+        StreamService.LayoutChanged -= OnLayoutChanged;
+    }
+}

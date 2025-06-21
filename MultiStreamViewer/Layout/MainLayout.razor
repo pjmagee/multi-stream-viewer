@@ -1,0 +1,27 @@
+﻿@inherits LayoutComponentBase
+
+<FluentDesignTheme />
+
+<FluentLayout class="main-layout">
+    <FluentBodyContent class="body-content">
+        <ErrorBoundary>
+            <ChildContent>
+                <div class="content">
+                    @Body
+                </div>
+            </ChildContent>
+            <ErrorContent Context="ex">
+                <div class="blazor-error-boundary">
+                    <h3>An error occurred</h3>
+                    <p>@ex.Message</p>
+                </div>
+            </ErrorContent>
+        </ErrorBoundary>
+    </FluentBodyContent>
+</FluentLayout>
+
+<FluentToastProvider />
+<FluentDialogProvider />
+<FluentTooltipProvider />
+<FluentMessageBarProvider />
+<FluentMenuProvider />

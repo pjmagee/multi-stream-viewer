@@ -1,0 +1,12 @@
+.main-layout {
+    height: 100vh;
+}
+
+.body-content {
+    height: 100vh;
+    padding: 0;
+}
+
+.content {
+    height: 100vh;
+}

@@ -1,0 +1,199 @@
+.main-layout[b-9myjcu5p6g] {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+.content-area[b-9myjcu5p6g] {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.header-section[b-9myjcu5p6g] {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    overflow: visible;
+    position: relative;
+    z-index: 9000;
+    background: var(--fill-color);
+    border-bottom: 1px solid var(--neutral-stroke-divider);
+}
+
+.app-header[b-9myjcu5p6g] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    width: 100%;
+    min-height: 40px;
+}
+
+.app-title[b-9myjcu5p6g] {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    min-width: 200px;
+}
+
+.app-title-text[b-9myjcu5p6g] {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.header-controls[b-9myjcu5p6g] {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    overflow: visible;
+    flex: 1;
+    justify-content: flex-end;
+}
+
+.streamer-input[b-9myjcu5p6g] {
+    width: 140px;
+}
+
+.pattern-input[b-9myjcu5p6g] {
+    width: 200px;
+}
+
+.divider[b-9myjcu5p6g] {
+    width: 1px;
+    height: 24px;
+    background: var(--neutral-stroke-divider);
+    margin: 0 4px;
+    flex-shrink: 0;
+}
+
+/* Button styling */
+.header-controls fluent-button[b-9myjcu5p6g] {
+    --type-ramp-base-font-size: 12px;
+    padding: 6px 10px !important;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+/* Input field styling */
+.header-controls fluent-text-field[b-9myjcu5p6g] {
+    --type-ramp-base-font-size: 13px;
+    --type-ramp-base-line-height: 16px;
+    height: 32px;
+    flex-shrink: 0;
+}
+
+/* Select dropdown styling */
+.header-controls fluent-select[b-9myjcu5p6g] {
+    --type-ramp-base-font-size: 13px;
+    --type-ramp-base-line-height: 16px;
+    height: 32px;
+    flex-shrink: 0;
+}
+
+/* Comprehensive dropdown z-index fixes */
+fluent-select .fluent-select-dropdown[b-9myjcu5p6g],
+fluent-select[b-9myjcu5p6g]::part(control),
+fluent-select[b-9myjcu5p6g]::part(listbox),
+fluent-listbox[b-9myjcu5p6g],
+.fluent-select-overlay[b-9myjcu5p6g],
+[role="listbox"][b-9myjcu5p6g] {
+    z-index: 9999 !important;
+    position: relative !important;
+}
+
+/* Override any container that might clip the dropdown */
+.header-section[b-9myjcu5p6g],
+.app-header[b-9myjcu5p6g],
+.header-controls[b-9myjcu5p6g] {
+    overflow: visible !important;
+    position: relative !important;
+}
+
+.streams-section[b-9myjcu5p6g] {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    padding: 16px;
+}
+
+/* Manage Streams Dialog */
+[b-9myjcu5p6g] .stream-item {
+    padding: 12px;
+    margin: 0;
+    border-radius: 6px;
+    border: 1px solid var(--neutral-stroke-divider);
+}
+
+[b-9myjcu5p6g] .stream-item:hover {
+    background-color: var(--neutral-fill-stealth-hover);
+}
+
+[b-9myjcu5p6g] fluent-dialog {
+    --dialog-width: 480px;
+    --dialog-height: auto;
+    --dialog-max-height: 70vh;
+}
+
+[b-9myjcu5p6g] fluent-dialog fluent-dialog-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 968px) {
+    .app-header[b-9myjcu5p6g] {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .app-title[b-9myjcu5p6g] {
+        align-self: center;
+        min-width: auto;
+    }
+
+    .header-controls[b-9myjcu5p6g] {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    
+    .header-controls fluent-text-field[style*="200px"][b-9myjcu5p6g] {
+        width: 160px !important;
+    }
+    
+    .header-controls fluent-text-field[style*="140px"][b-9myjcu5p6g] {
+        width: 120px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-layout.with-chat-pane[b-9myjcu5p6g] {
+        flex-direction: column;
+    }
+    
+    .main-layout.with-chat-pane .chat-pane[b-9myjcu5p6g] {
+        width: 100%;
+        height: 300px;
+    }
+
+    .header-controls[b-9myjcu5p6g] {
+        gap: 4px;
+    }
+    
+    .header-controls fluent-text-field[style*="200px"][b-9myjcu5p6g] {
+        width: 140px !important;
+    }
+    
+    .header-controls fluent-text-field[style*="140px"][b-9myjcu5p6g] {
+        width: 100px !important;
+    }
+}

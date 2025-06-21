@@ -1,0 +1,42 @@
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+}
+
+.chat-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.chat-settings {
+    padding: 16px;
+}
+
+.chat-content {
+    height: 100%;
+    overflow: hidden;
+}
+
+.no-streams {
+    padding: 20px;
+    text-align: center;
+}
+
+/* Additional chat pane constraints */
+.chat-pane {
+    width: 350px;
+    min-width: 350px;
+    max-width: 350px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-pane fluent-card {
+    flex: 1;
+    height: 100%;
+}
