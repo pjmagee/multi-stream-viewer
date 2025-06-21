@@ -4,8 +4,7 @@
 
 <div id="streams-container" class="streams-container @GetLayoutClass()">
     @if (StreamService.Streams.Any())
-    { 
-        
+    {         
         @if (StreamService.CurrentLayout == LayoutMode.Grid)
         {
             <FluentStack Orientation="Orientation.Horizontal" Wrap="true" HorizontalAlignment="HorizontalAlignment.Center"
@@ -25,7 +24,8 @@
                 <StreamCard Stream="stream" />
             }
         }
-    }    else
+    }   
+    else
     {
         <div class="no-streams-message">
             <div class="empty-content">
@@ -38,6 +38,7 @@
 </div>
 
 @code {
+
     protected override void OnInitialized()
     {
         StreamService.StreamsChanged += OnStreamsChanged;
@@ -75,7 +76,6 @@
         }
         catch (Exception ex)
         {
-            // Handle JS interop errors gracefully
             Console.WriteLine($"Layout optimization error: {ex.Message}");
         }
     }
@@ -89,7 +89,9 @@
             LayoutMode.Horizontal => "horizontal-container",
             _ => "grid-container"
         };
-    }    public void Dispose()
+    }    
+    
+    public void Dispose()
     {
         StreamService.StreamsChanged -= OnStreamsChanged;
         StreamService.LayoutChanged -= OnLayoutChanged;

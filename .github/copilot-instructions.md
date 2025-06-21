@@ -15,9 +15,7 @@ dotnet new fluentblazorwasm --name MyApplication
 
 # Github Pages deployment
 
-Blazor on GitHub Pages
-
-https://github.com/SteveSandersonMS/BlazorOnGitHubPages
+https://learn.microsoft.com/en-us/aspnet/core/blazor/host-and-deploy/webassembly/github-pages?view=aspnetcore-9.0
 
 
 # Example Stream URL

@@ -242,20 +242,32 @@
             StreamPlatform.Kick => "e.g., trainwreckstv",
             _ => "Enter identifier..."
         };
-    }
-
-    private async Task ShareUrlToClipboard()
+    }    private async Task ShareUrlToClipboard()
     {
         try
         {
-            var currentUrl = Navigation.Uri;
-            await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", currentUrl);
+            var shareableUrl = GetShareableUrl();
+            await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", shareableUrl);
             ToastService.ShowSuccess("URL copied to clipboard!");
         }
         catch (Exception)
         {
             ToastService.ShowError("Failed to copy URL to clipboard");
         }
+    }    private string GetShareableUrl()
+    {
+        var baseUri = Navigation.BaseUri.TrimEnd('/'); // This will be https://pjmagee.github.io/multi-stream-viewer/
+        var currentUri = Navigation.Uri;
+        
+        // If current URI equals base URI, return base URI
+        if (currentUri.Equals(baseUri, StringComparison.OrdinalIgnoreCase) || 
+            currentUri.Equals(baseUri + "/", StringComparison.OrdinalIgnoreCase))
+        {
+            return baseUri;
+        }
+        
+        // Otherwise return the full current URI which should already be correct
+        return currentUri;
     }
 
     private void ClearAllStreams()
@@ -374,9 +386,7 @@
         {
             await AddFromPattern();
         }
-    }
-
-    private void UpdateUrl()
+    }    private void UpdateUrl()
     {
         var segments = new List<string>();
 
@@ -386,7 +396,9 @@
             segments.Add(stream.StreamerName);
         }
 
-        var url = segments.Any() ? $"/{string.Join("/", segments)}" : "/";
+        // Use relative path that respects the base href
+        var relativePath = segments.Any() ? string.Join("/", segments) : "";
+        var url = string.IsNullOrEmpty(relativePath) ? "" : relativePath;
         Navigation.NavigateTo(url, false);
     }
 

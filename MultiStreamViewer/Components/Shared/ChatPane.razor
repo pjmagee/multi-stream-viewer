@@ -3,50 +3,50 @@
 
 <div class="chat-pane">
     <FluentCard>
-        <div class="chat-header">
-            <FluentLabel Typo="Typography.H6">Chat</FluentLabel>
-            <div class="chat-controls">
-                <FluentButton IconStart="@(new Icons.Regular.Size16.Settings())"
-                              Appearance="Appearance.Stealth"
-                              OnClick="ToggleSettings"
-                              Title="Chat settings" />
-                <FluentButton IconStart="@(new Icons.Regular.Size16.Dismiss())"
-                              Appearance="Appearance.Stealth"
-                              OnClick="ToggleChatPane"
-                              Title="Close chat" />
+            <div class="chat-header">
+                <FluentLabel Typo="Typography.H6">Chat</FluentLabel>
+                <div class="chat-controls">
+                    <FluentButton IconStart="@(new Icons.Regular.Size16.Settings())"
+                                Appearance="Appearance.Stealth"
+                                OnClick="ToggleSettings"
+                                Title="Chat settings" />
+                    <FluentButton IconStart="@(new Icons.Regular.Size16.Dismiss())"
+                                Appearance="Appearance.Stealth"
+                                OnClick="ToggleChatPane"
+                                Title="Close chat" />
+                </div>
             </div>
-        </div>
 
-    @if (showSettings)
-    {
-        <div class="chat-settings">
-            <FluentSelect TOption="string" @bind-Value="@SelectedPositionString" Label="Position">
-                <FluentOption TOption="string" Value="Left">Left</FluentOption>
-                <FluentOption TOption="string" Value="Right">Right</FluentOption>
-            </FluentSelect>
-        </div>
-    }
-
-    <FluentTabs Orientation="Orientation.Horizontal">
-        @foreach (var stream in StreamService.Streams)
+        @if (showSettings)
         {
-            <FluentTab Label="@stream.StreamerName">
-                <div class="chat-content">
-                    <iframe src="@stream.ChatUrl" frameborder="0" width="100%" height="650"></iframe>
-                </div>
-            </FluentTab>
+            <div class="chat-settings">
+                <FluentSelect TOption="string" @bind-Value="@SelectedPositionString" Label="Position">
+                    <FluentOption TOption="string" Value="Left">Left</FluentOption>
+                    <FluentOption TOption="string" Value="Right">Right</FluentOption>
+                </FluentSelect>
+            </div>
         }
 
-        @if (!StreamService.Streams.Any())
-        {
-            <FluentTab Label="No Streams">
-                <div class="no-streams">
-                    <FluentLabel>Add some streams to see their chats here!</FluentLabel>
-                </div>
-            </FluentTab>
-        }
+        <FluentTabs Orientation="Orientation.Horizontal">
+            @foreach (var stream in StreamService.Streams)
+            {
+                <FluentTab Label="@stream.StreamerName">
+                    <div class="chat-content">
+                        <iframe src="@stream.ChatUrl" frameborder="0" width="100%" height="650"></iframe>
+                    </div>
+                </FluentTab>
+            }
+
+            @if (!StreamService.Streams.Any())
+            {
+                <FluentTab Label="No Streams">
+                    <div class="no-streams">
+                        <FluentLabel>Add some streams to see their chats here!</FluentLabel>
+                    </div>
+                </FluentTab>
+            }
         </FluentTabs>
-</FluentCard>
+    </FluentCard>
 </div>
 
 @code {

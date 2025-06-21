@@ -51,32 +51,43 @@ public class StreamInfo
     /// Platform Requirements:
     /// - Twitch: streamerName is the channel name (e.g., "shroud")
     /// - YouTube: streamerName should be the Video ID (e.g., "dQw4w9WgXcQ") NOT channel name
-    /// - Kick: streamerName is the channel name (e.g., "trainwreckstv")
-    /// 
+    /// - Kick: streamerName is the channel name (e.g., "trainwreckstv")    /// 
     /// Note: For YouTube, users must provide the specific video ID of the live stream,
     /// not the channel name. This follows YouTube's embed requirements.
-    /// </summary>
+    /// </summary>    
     private static string GetEmbedUrl(StreamPlatform platform, string streamerName)
     {
         return platform switch
         {
-            StreamPlatform.Twitch => $"https://player.twitch.tv/?channel={streamerName}&parent=localhost&parent=127.0.0.1&parent=github.io&parent=pages.dev&autoplay=false&muted=false",
+            StreamPlatform.Twitch => GetTwitchEmbedUrl(streamerName),
             StreamPlatform.YouTube => $"https://www.youtube.com/embed/{streamerName}?autoplay=0&allow=autoplay; encrypted-media",
             StreamPlatform.Kick => $"https://player.kick.com/{streamerName}?autoplay=false",
             _ => string.Empty
         };
+    }    
+    
+    private static string GetTwitchEmbedUrl(string streamerName)
+    {
+        var parentDomain = GetEmbedDomain();
+        return $"https://player.twitch.tv/?channel={streamerName}&parent={parentDomain}&autoplay=false&muted=false";
     }
 
     private static string GetChatUrl(StreamPlatform platform, string streamerName)
     {
         return platform switch
         {
-            StreamPlatform.Twitch => $"https://www.twitch.tv/embed/{streamerName}/chat?parent=localhost&parent=127.0.0.1&parent=github.io&parent=pages.dev",
+            StreamPlatform.Twitch => GetTwitchChatUrl(streamerName),
             StreamPlatform.YouTube => GetYouTubeChatUrl(streamerName),
             StreamPlatform.Kick => $"https://kick.com/{streamerName}/chatroom",
             _ => string.Empty
         };
     }
+
+    private static string GetTwitchChatUrl(string streamerName)
+    {
+        var parentDomain = GetEmbedDomain();
+        return $"https://www.twitch.tv/embed/{streamerName}/chat?parent={parentDomain}";
+    }    
 
     private static string GetYouTubeChatUrl(string videoId)
     {
