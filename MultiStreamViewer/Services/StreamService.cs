@@ -6,14 +6,13 @@ namespace MultiStreamViewer.Services;
 public class StreamService
 {
     public ObservableCollection<StreamInfo> Streams { get; } = new();
-    public LayoutMode CurrentLayout { get; set; } = LayoutMode.Grid;
     public ChatDisplayMode ChatMode { get; set; } = ChatDisplayMode.Pane;
     public ChatPanePosition ChatPosition { get; set; } = ChatPanePosition.Right;
     public bool IsChatPaneVisible { get; set; } = false;
 
     public event Action? StreamsChanged;
-    public event Action? LayoutChanged;
     public event Action? ChatSettingsChanged;
+    public event Action? ManageDialogRequested;
 
     public void AddStream(StreamPlatform platform, string streamerName)
     {
@@ -31,14 +30,7 @@ public class StreamService
         if (stream != null)
         {
             Streams.Remove(stream);
-            StreamsChanged?.Invoke();
-        }
-    }
-
-    public void SetLayout(LayoutMode layout)
-    {
-        CurrentLayout = layout;
-        LayoutChanged?.Invoke();
+            StreamsChanged?.Invoke();        }
     }
 
     public void SetChatMode(ChatDisplayMode mode)
@@ -100,11 +92,14 @@ public class StreamService
             Streams.Add(stream);
         }
         StreamsChanged?.Invoke();
-    }
-
-    public void ClearAllStreams()
+    }    public void ClearAllStreams()
     {
         Streams.Clear();
         StreamsChanged?.Invoke();
+    }
+
+    public void TriggerManageDialog()
+    {
+        ManageDialogRequested?.Invoke();
     }
 }

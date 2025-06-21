@@ -9,9 +9,7 @@ public enum StreamPlatform
 
 public enum LayoutMode
 {
-    Grid,
-    Stacked,
-    Horizontal
+    Grid
 }
 
 public enum ChatDisplayMode

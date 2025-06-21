@@ -1,7 +1,8 @@
 ﻿@page "/"
 @page "/{*segments}"
 
-@using MultiStreamViewer.Components.Shared
+@using Microsoft.FluentUI.AspNetCore.Components
+@using System.Web
 @inject StreamService StreamService
 @inject NavigationManager Navigation
 @inject IDialogService DialogService
@@ -18,35 +19,20 @@
          StreamService.IsChatPaneVisible &&
          StreamService.ChatPosition == ChatPanePosition.Left)
     {
-        <ChatPane/>
+        <ChatPane />
     }
 
     <!-- Main Content Area -->
-    <div class="content-area">
-        <div class="header-section">
-            <div class="app-header">
-                <div class="app-title">
-                    <FluentIcon Value="@(new Icons.Regular.Size20.VideoClip())" Color="Color.Accent"/>
-                    <FluentLabel Typo="Typography.Body" class="app-title-text">
-                        Multi-Stream Viewer
-                    </FluentLabel>
-                </div>
-
-                <div class="header-controls">
-                    <FluentButton IconStart="@(new Icons.Regular.Size16.Grid())"
-                                  Appearance="@(StreamService.CurrentLayout == LayoutMode.Grid ? Appearance.Accent : Appearance.Neutral)"
-                                  OnClick="() => SetLayout(LayoutMode.Grid)"
-                                  Title="Grid Layout" />
-                    <FluentButton IconStart="@(new Icons.Regular.Size16.ColumnSingle())"
-                                  Appearance="@(StreamService.CurrentLayout == LayoutMode.Stacked ? Appearance.Accent : Appearance.Neutral)"
-                                  OnClick="() => SetLayout(LayoutMode.Stacked)"
-                                  Title="Stacked Layout" />
-                    <FluentButton IconStart="@(new Icons.Regular.Size16.TableSimple())"
-                                  Appearance="@(StreamService.CurrentLayout == LayoutMode.Horizontal ? Appearance.Accent : Appearance.Neutral)"
-                                  OnClick="() => SetLayout(LayoutMode.Horizontal)"
-                                  Title="Horizontal Layout" />
-
-                    <div class="divider"></div>
+    <div class="content-area">          <div class="header-section">
+            <!-- App Title -->
+            <div class="app-title">
+                <FluentIcon Value="@(new Icons.Regular.Size20.VideoClip())" Color="Color.Accent"/>
+                <FluentLabel Typo="Typography.Body" Style="font-weight: 600; font-size: 16px;">
+                    Multi-Stream Viewer
+                </FluentLabel>
+            </div>            <!-- Main Toolbar -->
+            <FluentToolbar Style="flex: 1; justify-content: flex-end; gap: 8px;">
+                <!-- Chat Controls -->
                     <FluentButton IconStart="@(new Icons.Regular.Size16.Chat())"
                                   Appearance="@(StreamService.ChatMode == ChatDisplayMode.Pane ? Appearance.Accent : Appearance.Neutral)"
                                   OnClick="() => SetChatMode(ChatDisplayMode.Pane)"
@@ -63,36 +49,63 @@
                             Appearance="Appearance.Stealth"
                             OnClick="() => StreamService.ToggleChatPane()"
                             Title="@(StreamService.IsChatPaneVisible ? "Hide Chat" : "Show Chat")" />
-                    }
+                    }                    <FluentDivider Role="DividerRole.Separator" Orientation="Orientation.Vertical" />
 
-                    <div class="divider"></div>
-                    <div class="platform-selector">
-                        <FluentButton Appearance="@(SelectedPlatform == StreamPlatform.Twitch ? Appearance.Accent : Appearance.Neutral)"
-                                      OnClick="() => SetSelectedPlatform(StreamPlatform.Twitch)">
-                            <FluentIcon Width="16px" Value="@PlatformIcons.Twitch" />    
-                        </FluentButton>
-                        <FluentButton Appearance="@(SelectedPlatform == StreamPlatform.YouTube ? Appearance.Accent : Appearance.Neutral)"
-                                      OnClick="() => SetSelectedPlatform(StreamPlatform.YouTube)">
-                            <FluentIcon Width="16px" Value="@PlatformIcons.YouTube" />
-                        </FluentButton>
-                        <FluentButton Appearance="@(SelectedPlatform == StreamPlatform.Kick ? Appearance.Accent : Appearance.Neutral)"
-                                      OnClick="() => SetSelectedPlatform(StreamPlatform.Kick)">
-                            <FluentIcon Width="16px" Value="@PlatformIcons.Kick" />
-                        </FluentButton>
-                    </div>
-
-                    <FluentTextField @bind-Value="_user"
-                                     Placeholder="@GetPlaceholderText()"
-                                     @onkeyup="HandleKeyUp"
-                                     class="streamer-input" />
-                    <FluentTextField @bind-Value="_patternInput"
-                                     Placeholder="twitch/user/youtube/user"
-                                     @onkeyup="HandlePatternKeyUp"
-                                     class="pattern-input" />
+                    <!-- Universal Input -->
+                    <FluentTextField @bind-Value="_universalInput" 
+                                     Id="universal-input"
+                                     Placeholder="Add streams: URL or t/username, y/videoid, k/username"
+                                     @onkeyup="HandleUniversalKeyUp"
+                                     Style="width: 280px;" />
+                    
+                    <FluentPopover @bind-Open="_showInputHelp" 
+                                   AnchorId="input-help-anchor"
+                                   VerticalPosition="@VerticalPosition.Bottom"
+                                   HorizontalPosition="@HorizontalPosition.Left"
+                                   Style="max-width: 380px;">
+                        <Body>
+                            <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+                                <FluentLabel Typo="Typography.Body" Style="font-weight: 600;">
+                                    Add Streams - Multiple Ways
+                                </FluentLabel>                                
+                                <FluentStack Orientation="Orientation.Vertical" VerticalGap="8">
+                                    <FluentLabel Typo="Typography.Body">
+                                        <strong>Full URLs:</strong>
+                                    </FluentLabel>
+                                    <FluentLabel Typo="Typography.Body" Style="margin-left: 8px;">
+                                        • <code>https://twitch.tv/username</code><br/>
+                                        • <code>https://youtube.com/watch?v=videoid</code><br/>
+                                        • <code>https://kick.com/username</code>
+                                    </FluentLabel>                                        
+                                    <FluentLabel Typo="Typography.Body">
+                                        <strong>Shorthand patterns:</strong>
+                                    </FluentLabel>
+                                    <FluentLabel Typo="Typography.Body" Style="margin-left: 8px;">
+                                        • <code>t/username</code> (Twitch)<br/>
+                                        • <code>y/videoid</code> (YouTube)<br/>
+                                        • <code>k/username</code> (Kick)
+                                    </FluentLabel>
+                                    <FluentLabel Typo="Typography.Body">
+                                        <strong>Multiple streams:</strong>
+                                    </FluentLabel>
+                                    <FluentLabel Typo="Typography.Body" Style="margin-left: 8px;">
+                                        <code>t/shroud/k/xqc/y/dQw4w9WgXcQ</code>
+                                    </FluentLabel>
+                                </FluentStack>
+                            </FluentStack>
+                        </Body>
+                    </FluentPopover>
+                    
+                    <FluentButton id="input-help-anchor"
+                                  @onclick="ToggleInputHelp"
+                                  IconStart="@(new Icons.Regular.Size16.Info())"
+                                  Appearance="Appearance.Stealth"
+                                  Title="Input Help" />
 
                     @if (StreamService.Streams.Any())
                     {
-                        <div class="divider"></div>
+                        <FluentDivider Role="DividerRole.Separator" Orientation="Orientation.Vertical" />
+                        
                         <FluentButton IconStart="@(new Icons.Regular.Size16.Share())"
                                       Appearance="Appearance.Stealth"
                                       OnClick="ShareUrlToClipboard"
@@ -100,10 +113,8 @@
                         <FluentButton IconStart="@(new Icons.Regular.Size16.Settings())"
                                       Appearance="Appearance.Stealth"
                                       OnClick="OpenManageStreamsDialog"
-                                      Title="Manage Streams" />
-                    }
-                </div>
-            </div>
+                                      Title="Manage Streams" />                    }
+                </FluentToolbar>
         </div>
 
         <div class="streams-section">
@@ -155,8 +166,7 @@
                             <FluentButton IconEnd="@(new Icons.Regular.Size16.Delete())"
                                           Appearance="Appearance.Stealth"
                                           OnClick="() => RemoveStream(stream)"
-                                          Title="Remove Stream"
-                                          Size="ButtonSize.Small"/>
+                                          Title="Remove Stream" />
                         </FluentStack>
                     </FluentCard>
                 }
@@ -186,21 +196,13 @@
 </FluentDialog>
 
 @code {
+      [Parameter] public string? Segments { get; set; }
     
-    [Parameter] public string? Segments { get; set; } // Add stream form fields
-    
-    private StreamPlatform _selectedPlatform = StreamPlatform.Twitch;
-    
-    private string _user = string.Empty;
-    private string _patternInput = string.Empty;
+    private string _universalInput = string.Empty;
     private bool _isManageDialogHidden = true;
-
-    private StreamPlatform SelectedPlatform => _selectedPlatform;
-
-    protected override void OnInitialized()
+    private bool _showInputHelp = false;    protected override void OnInitialized()
     {
         StreamService.StreamsChanged += StateHasChanged;
-        StreamService.LayoutChanged += StateHasChanged;
         StreamService.ChatSettingsChanged += StateHasChanged;
 
         // Load streams from URL if segments are provided
@@ -214,35 +216,18 @@
             {
                 // Handle URL parsing errors
                 Console.WriteLine($"Error parsing URL segments: {ex.Message}");
-            }
-        }
-    }
-
-    private void SetLayout(LayoutMode layout)
-    {
-        StreamService.SetLayout(layout);
+            }        }
     }
 
     private void SetChatMode(ChatDisplayMode mode)
     {
         StreamService.SetChatMode(mode);
+    }    private void ToggleInputHelp()
+    {
+        _showInputHelp = !_showInputHelp;
     }
 
-    private void SetSelectedPlatform(StreamPlatform platform)
-    {
-        _selectedPlatform = platform;
-    }
-
-    private string GetPlaceholderText()
-    {
-        return SelectedPlatform switch
-        {
-            StreamPlatform.Twitch => "e.g., shroud",
-            StreamPlatform.YouTube => "Video ID (e.g., dQw4w9WgXcQ)",
-            StreamPlatform.Kick => "e.g., trainwreckstv",
-            _ => "Enter identifier..."
-        };
-    }    private async Task ShareUrlToClipboard()
+    private async Task ShareUrlToClipboard()
     {
         try
         {
@@ -254,7 +239,9 @@
         {
             ToastService.ShowError("Failed to copy URL to clipboard");
         }
-    }    private string GetShareableUrl()
+    }    
+    
+    private string GetShareableUrl()
     {
         var baseUri = Navigation.BaseUri.TrimEnd('/'); // This will be https://pjmagee.github.io/multi-stream-viewer/
         var currentUri = Navigation.Uri;
@@ -300,8 +287,7 @@
     }
 
     private Icon GetPlatformIcon(StreamPlatform platform)
-    {
-        return platform switch
+    {        return platform switch
         {
             StreamPlatform.Twitch => PlatformIcons.Twitch,
             StreamPlatform.YouTube => PlatformIcons.YouTube,
@@ -310,56 +296,60 @@
         };
     }
 
-    private async Task AddStream()
+    private async Task AddFromUniversalInput()
     {
-        if (string.IsNullOrWhiteSpace(_user))
+        if (string.IsNullOrWhiteSpace(_universalInput))
         {
-            await DialogService.ShowErrorAsync("Please enter a streamer name.", "Invalid Input");
+            await DialogService.ShowErrorAsync("Please enter a URL or pattern.", "Invalid Input");
             return;
         }
 
         try
         {
-            StreamService.AddStream(SelectedPlatform, _user.Trim());
-            _user = string.Empty;
-            UpdateUrl();
-        }
-        catch (Exception ex)
-        {
-            await DialogService.ShowErrorAsync($"Failed to add stream: {ex.Message}", "Error");
-        }
-    }
-
-    private async Task AddFromPattern()
-    {
-        if (string.IsNullOrWhiteSpace(_patternInput))
-        {
-            await DialogService.ShowErrorAsync("Please enter a pattern.", "Invalid Input");
-            return;
-        }
-
-        try
-        {
-            var parts = _patternInput.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var input = _universalInput.Trim();
             var addedCount = 0;
 
-            for (int i = 0; i < parts.Length - 1; i += 2)
+            // Check if it's a URL
+            if (input.StartsWith("http://") || input.StartsWith("https://"))
             {
-                var platformName = parts[i].Trim();
-                var streamerNameFromPattern = parts[i + 1].Trim();
-
-                if (Enum.TryParse<StreamPlatform>(platformName, true, out var platform))
+                var parsedStream = ParseUrl(input);
+                if (parsedStream != null)
                 {
-                    StreamService.AddStream(platform, streamerNameFromPattern);
-                    addedCount++;
+                    StreamService.AddStream(parsedStream.Value.platform, parsedStream.Value.identifier);
+                    addedCount = 1;
+                }
+            }
+            else
+            {
+                // Handle shorthand patterns (t/user, y/videoid, k/user, or multiple)
+                var parts = input.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                
+                for (int i = 0; i < parts.Length - 1; i += 2)
+                {
+                    var platformShort = parts[i].Trim().ToLower();
+                    var identifier = parts[i + 1].Trim();
+
+                    var platform = platformShort switch
+                    {
+                        "t" => StreamPlatform.Twitch,
+                        "y" => StreamPlatform.YouTube,
+                        "k" => StreamPlatform.Kick,
+                        _ => (StreamPlatform?)null
+                    };
+
+                    if (platform.HasValue)
+                    {
+                        StreamService.AddStream(platform.Value, identifier);
+                        addedCount++;
+                    }
                 }
             }
 
-            _patternInput = string.Empty;
+            _universalInput = string.Empty;
 
             if (addedCount == 0)
             {
-                await DialogService.ShowWarningAsync("No valid streams found. Use format: platform/streamer/platform/streamer", "No Streams Added");
+                await DialogService.ShowWarningAsync("No valid streams found. Use full URLs or shorthand: t/user, y/videoid, k/user", "No Streams Added");
             }
             else
             {
@@ -368,25 +358,66 @@
         }
         catch (Exception ex)
         {
-            await DialogService.ShowErrorAsync($"Failed to parse pattern: {ex.Message}", "Error");
+            await DialogService.ShowErrorAsync($"Failed to parse input: {ex.Message}", "Error");
         }
     }
 
-    private async Task HandleKeyUp(KeyboardEventArgs e)
+    private (StreamPlatform platform, string identifier)? ParseUrl(string url)
     {
-        if (e.Key == "Enter")
+        try
         {
-            await AddStream();
-        }
-    }
+            var uri = new Uri(url);
+            var host = uri.Host.ToLower();
 
-    private async Task HandlePatternKeyUp(KeyboardEventArgs e)
+            if (host.Contains("twitch.tv"))
+            {
+                var username = uri.AbsolutePath.TrimStart('/');
+                if (!string.IsNullOrEmpty(username))
+                {
+                    return (StreamPlatform.Twitch, username);
+                }
+            }
+            else if (host.Contains("youtube.com") || host.Contains("youtu.be"))
+            {
+                string? videoId = null;
+                
+                if (host.Contains("youtu.be"))
+                {
+                    videoId = uri.AbsolutePath.TrimStart('/');
+                }
+                else if (uri.Query.Contains("v="))
+                {
+                    var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+                    videoId = query["v"];
+                }
+                
+                if (!string.IsNullOrEmpty(videoId))
+                {
+                    return (StreamPlatform.YouTube, videoId);
+                }
+            }
+            else if (host.Contains("kick.com"))
+            {
+                var username = uri.AbsolutePath.TrimStart('/');
+                if (!string.IsNullOrEmpty(username))
+                {
+                    return (StreamPlatform.Kick, username);
+                }
+            }
+        }
+        catch
+        {
+            // Invalid URL format
+        }
+
+        return null;
+    }    private async Task HandleUniversalKeyUp(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
         {
-            await AddFromPattern();
+            await AddFromUniversalInput();
         }
-    }    private void UpdateUrl()
+    }private void UpdateUrl()
     {
         var segments = new List<string>();
 
@@ -435,12 +466,9 @@
         }
 
         return string.Join(" ", classes);
-    }
-
-    public void Dispose()
+    }    public void Dispose()
     {
         StreamService.StreamsChanged -= StateHasChanged;
-        StreamService.LayoutChanged -= StateHasChanged;
         StreamService.ChatSettingsChanged -= StateHasChanged;
     }
 

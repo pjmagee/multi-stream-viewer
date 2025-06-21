@@ -25,22 +25,6 @@
     max-width: 100%;
 }
 
-.stacked-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    height: 100%;
-}
-
-.horizontal-container {
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    overflow-x: auto;
-    height: 100%;
-    align-items: stretch;
-}
-
 .no-streams-message {
     display: flex;
     justify-content: center;

@@ -21,15 +21,10 @@
     z-index: 9000;
     background: var(--fill-color);
     border-bottom: 1px solid var(--neutral-stroke-divider);
-}
-
-.app-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    width: 100%;
-    min-height: 40px;
+    gap: 16px;
+    min-height: 48px;
 }
 
 .app-title {
@@ -37,78 +32,31 @@
     align-items: center;
     gap: 8px;
     flex-shrink: 0;
-    min-width: 200px;
 }
 
-.app-title-text {
-    font-weight: 600;
-    font-size: 16px;
-}
-
-.header-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: nowrap;
-    overflow: visible;
+/* FluentToolbar optimizations */
+fluent-toolbar {
     flex: 1;
     justify-content: flex-end;
 }
 
-.streamer-input {
-    width: 140px;
-}
+/* Universal input styling */
 
-.pattern-input {
-    width: 200px;
-}
-
-.divider {
-    width: 1px;
-    height: 24px;
-    background: var(--neutral-stroke-divider);
-    margin: 0 4px;
-    flex-shrink: 0;
-}
-
-/* Button styling */
-.header-controls fluent-button {
-    --type-ramp-base-font-size: 12px;
-    padding: 6px 10px !important;
-    min-width: 32px;
-    height: 32px;
-    border-radius: 4px;
-    flex-shrink: 0;
-}
-
-/* Input field styling */
-.header-controls fluent-text-field {
-    --type-ramp-base-font-size: 13px;
-    --type-ramp-base-line-height: 16px;
-    height: 32px;
-    flex-shrink: 0;
-}
-
-/* Select dropdown styling */
-.header-controls fluent-select {
-    --type-ramp-base-font-size: 13px;
-    --type-ramp-base-line-height: 16px;
-    height: 32px;
-    flex-shrink: 0;
-}
-
-/* Platform selector styling */
-.platform-selector {
+.universal-input-container {
     display: flex;
     align-items: center;
-    gap: 2px;
-    background: var(--neutral-fill-stealth);
-    border-radius: 4px;
-    padding: 2px;
-    flex-shrink: 0;
+    gap: 4px;
 }
 
-/* Comprehensive dropdown z-index fixes */
+.universal-input-container fluent-text-field {
+    flex: 1;
+}
+
+.universal-input {
+    width: 350px;
+}
+
+/* FluentSelect dropdown z-index fixes */
 fluent-select .fluent-select-dropdown,
 fluent-select::part(control),
 fluent-select::part(listbox),
@@ -120,9 +68,7 @@ fluent-listbox,
 }
 
 /* Override any container that might clip the dropdown */
-.header-section,
-.app-header,
-.header-controls {
+.header-section {
     overflow: visible !important;
     position: relative !important;
 }
@@ -160,33 +106,22 @@ fluent-listbox,
 
 /* Mobile responsive styles */
 @media (max-width: 968px) {
-    .app-header {
+    .header-section fluent-stack {
         flex-direction: column;
         align-items: stretch;
         gap: 12px;
     }
 
-    .app-title {
+    .header-section fluent-stack:first-child {
         align-self: center;
-        min-width: auto;
-    }
-
-    .header-controls {
+    }    fluent-toolbar {
         justify-content: center;
         flex-wrap: wrap;
         gap: 6px;
     }
     
-    .platform-selector {
-        order: -1; /* Move platform selector to the beginning */
-    }
-    
-    .header-controls fluent-text-field[style*="200px"] {
-        width: 160px !important;
-    }
-    
-    .header-controls fluent-text-field[style*="140px"] {
-        width: 120px !important;
+    .universal-input {
+        width: 200px !important;
     }
 }
 
@@ -200,15 +135,11 @@ fluent-listbox,
         height: 300px;
     }
 
-    .header-controls {
+    fluent-toolbar {
         gap: 4px;
     }
     
-    .header-controls fluent-text-field[style*="200px"] {
-        width: 140px !important;
-    }
-    
-    .header-controls fluent-text-field[style*="140px"] {
-        width: 100px !important;
+    .universal-input {
+        width: 160px !important;
     }
 }
