@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://your-domain.github.io/multi-stream-viewer/sitemap.xml
+Sitemap: https://msv.ghp.magaoidh.pro/sitemap.xml

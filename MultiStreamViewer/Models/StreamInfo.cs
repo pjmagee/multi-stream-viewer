@@ -100,7 +100,7 @@ public class StreamInfo
             #if DEBUG
                 return "localhost";
             #else
-                return "pjmagee.github.io";
+                return "msv.ghp.magaoidh.pro";
             #endif
         }
     }

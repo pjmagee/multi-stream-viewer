@@ -26,7 +26,7 @@ dotnet run
 
 ### Live Demo
 
-Visit: `https://pjmagee.github.io/multi-stream-viewer/`
+Visit: `https://msv.ghp.magaoidh.pro/`
 
 ## Usage
 

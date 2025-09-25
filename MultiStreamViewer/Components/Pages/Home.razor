@@ -3,6 +3,7 @@
 
 @using Microsoft.FluentUI.AspNetCore.Components
 @using System.Web
+
 @inject StreamService StreamService
 @inject NavigationManager Navigation
 @inject IDialogService DialogService
@@ -15,15 +16,14 @@
 
 <div class="main-layout @GetMainLayoutClass()">
     <!-- Chat Pane - Left -->
-    @if (StreamService.ChatMode == ChatDisplayMode.Pane &&
-         StreamService.IsChatPaneVisible &&
-         StreamService.ChatPosition == ChatPanePosition.Left)
+    @if (IsLeftChatPane)
     {
         <ChatPane />
     }
 
     <!-- Main Content Area -->
-    <div class="content-area">          <div class="header-section">
+    <div class="content-area">          
+        <div class="header-section">
             <!-- App Title -->
             <div class="app-title">
                 <FluentIcon Value="@(new Icons.Regular.Size20.VideoClip())" Color="Color.Accent"/>
@@ -49,14 +49,16 @@
                             Appearance="Appearance.Stealth"
                             OnClick="() => StreamService.ToggleChatPane()"
                             Title="@(StreamService.IsChatPaneVisible ? "Hide Chat" : "Show Chat")" />
-                    }                    <FluentDivider Role="DividerRole.Separator" Orientation="Orientation.Vertical" />
+                    }                    
+                    
+                    <FluentDivider Role="DividerRole.Separator" Orientation="Orientation.Vertical" />
 
                     <!-- Universal Input -->
                     <FluentTextField @bind-Value="_universalInput" 
                                      Id="universal-input"
-                                     Placeholder="Add streams: URL or t/username, y/videoid, k/username"
+                                     Placeholder="URL or t/username, y/videoid, k/username"
                                      @onkeyup="HandleUniversalKeyUp"
-                                     Style="width: 280px;" />
+                                     Style="width: 400px;" />
                     
                     <FluentPopover @bind-Open="_showInputHelp" 
                                    AnchorId="input-help-anchor"
@@ -123,9 +125,7 @@
     </div>
 
     <!-- Chat Pane - Right -->
-    @if (StreamService.ChatMode == ChatDisplayMode.Pane &&
-         StreamService.IsChatPaneVisible &&
-         StreamService.ChatPosition == ChatPanePosition.Right)
+    @if (IsRightChatPane)
     {
         <ChatPane/>
     }
@@ -197,7 +197,11 @@
 
 @code {
       [Parameter] public string? Segments { get; set; }
-    
+
+      public bool IsLeftChatPane => StreamService.ChatMode == ChatDisplayMode.Pane && StreamService.IsChatPaneVisible && StreamService.ChatPosition == ChatPanePosition.Left;
+
+      public bool IsRightChatPane => StreamService.ChatMode == ChatDisplayMode.Pane && StreamService.IsChatPaneVisible && StreamService.ChatPosition == ChatPanePosition.Right;
+
     private string _universalInput = string.Empty;
     private bool _isManageDialogHidden = true;
     private bool _showInputHelp = false;    protected override void OnInitialized()
@@ -243,7 +247,7 @@
     
     private string GetShareableUrl()
     {
-        var baseUri = Navigation.BaseUri.TrimEnd('/'); // This will be https://pjmagee.github.io/multi-stream-viewer/
+        var baseUri = Navigation.BaseUri.TrimEnd('/'); // This will be https://msv.ghp.magaoidh.pro/
         var currentUri = Navigation.Uri;
         
         // If current URI equals base URI, return base URI
