@@ -3,7 +3,9 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>MultiStreamViewer</RootNamespace>    
+    <RootNamespace>MultiStreamViewer</RootNamespace>
+    <Version>0.1.0</Version>
+    <InformationalVersion>0.1.0</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,6 +2,7 @@
 @page "/{*segments}"
 
 @using Microsoft.FluentUI.AspNetCore.Components
+@using MultiStreamViewer.Services
 @using System.Web
 
 @inject StreamService StreamService
@@ -9,6 +10,7 @@
 @inject IDialogService DialogService
 @inject IToastService ToastService
 @inject IJSRuntime JsRuntime
+@inject AppInfoService AppInfo
 
 @implements IDisposable
 
@@ -29,6 +31,9 @@
                 <FluentIcon Value="@(new Icons.Regular.Size20.VideoClip())" Color="Color.Accent" />
                 <FluentLabel Typo="Typography.Body" Style="font-weight: 600; font-size: 16px;">
                     Multi-Stream Viewer
+                </FluentLabel>
+                <FluentLabel Typo="Typography.Body" Color="Color.Disabled" Style="margin-left: 4px; font-size: 12px;">
+                    v@(AppInfo.Version)
                 </FluentLabel>
             </div> <!-- Main Toolbar -->
             <FluentToolbar Style="flex: 1; justify-content: flex-end; gap: 8px;">
