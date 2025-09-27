@@ -50,7 +50,7 @@ public class StreamInfo
 
     public string? VideoPermissions => Platform switch
     {
-        StreamPlatform.Twitch => "encrypted-media *;",
+        StreamPlatform.Twitch => "autoplay; encrypted-media; fullscreen; picture-in-picture",
         StreamPlatform.YouTube => "accelerometer *; clipboard-write *; encrypted-media *; gyroscope *; picture-in-picture *; web-share *;",
         StreamPlatform.Kick => null,
         _ => null
