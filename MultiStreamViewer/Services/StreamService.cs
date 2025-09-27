@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components;
 using MultiStreamViewer.Models;
 using System.Collections.ObjectModel;
 
@@ -13,6 +14,11 @@ public class StreamService
     public event Action? StreamsChanged;
     public event Action? ChatSettingsChanged;
     public event Action? ManageDialogRequested;
+
+    public StreamService(NavigationManager navigationManager)
+    {
+        InitializeEmbedDomain(navigationManager);
+    }
 
     public void AddStream(StreamPlatform platform, string streamerName)
     {
@@ -30,7 +36,8 @@ public class StreamService
         if (stream != null)
         {
             Streams.Remove(stream);
-            StreamsChanged?.Invoke();        }
+            StreamsChanged?.Invoke();
+        }
     }
 
     public void SetChatMode(ChatDisplayMode mode)
@@ -92,7 +99,9 @@ public class StreamService
             Streams.Add(stream);
         }
         StreamsChanged?.Invoke();
-    }    public void ClearAllStreams()
+    }
+
+    public void ClearAllStreams()
     {
         Streams.Clear();
         StreamsChanged?.Invoke();
@@ -101,5 +110,18 @@ public class StreamService
     public void TriggerManageDialog()
     {
         ManageDialogRequested?.Invoke();
+    }
+
+    private static void InitializeEmbedDomain(NavigationManager navigationManager)
+    {
+        try
+        {
+            var host = new Uri(navigationManager.BaseUri).Host;
+            StreamInfo.ConfigureEmbedDomain(host);
+        }
+        catch (UriFormatException)
+        {
+            StreamInfo.ConfigureEmbedDomain("localhost");
+        }
     }
 }

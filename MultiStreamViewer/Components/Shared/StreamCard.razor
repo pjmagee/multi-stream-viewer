@@ -3,22 +3,93 @@
 
 <div class="stream-container">
     <div class="stream-content @(StreamService.ChatMode == ChatDisplayMode.Attached ? "with-chat" : "")">
+
         <div class="stream-video">
-            <iframe src="@Stream.EmbedUrl" 
-                    frameborder="0"
-                    class="stream-iframe"
-                    allowfullscreen="false"
-                    scrolling="no" 
-                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
-                    loading="lazy">
-            </iframe>
+            @if (Stream.IsTwitch)
+            {
+                <iframe src="@Stream.EmbedUrl"                        
+                        class="stream-iframe"
+                        allow="@Stream.VideoPermissions"
+                        allowfullscreen
+                        scrolling="no">
+                </iframe>
+            }
+            else if (Stream.IsYouTube)
+            {
+                <iframe src="@Stream.EmbedUrl"
+                        class="stream-iframe"
+                        title="@Stream.VideoTitle"
+                        allow="@Stream.VideoPermissions"
+                        allowfullscreen
+                        referrerpolicy="@Stream.VideoReferrerPolicy"
+                        scrolling="no">
+                </iframe>
+            }
+            else if (Stream.IsKick)
+            {
+                <iframe src="@Stream.EmbedUrl"                        
+                        frameborder="0" 
+                        class="stream-iframe"
+                        title="@Stream.VideoTitle"
+                        allow="@Stream.VideoPermissions"
+                        allowfullscreen
+                        scrolling="no">
+                </iframe>
+            }
+            else
+            {
+                <iframe src="@Stream.EmbedUrl"
+                        frameborder="0"
+                        class="stream-iframe"
+                        title="@Stream.VideoTitle"
+                        allowfullscreen
+                        scrolling="no"
+                        loading="lazy">
+                </iframe>
+            }
         </div>
         
         @if (StreamService.ChatMode == ChatDisplayMode.Attached)
         {
             <div class="stream-chat">
-                <iframe src="@Stream.ChatUrl" frameborder="0" class="chat-iframe" loading="lazy">
-                </iframe>
+                @if (Stream.IsTwitch)
+                {
+                    <iframe src="@Stream.ChatUrl"
+                            frameborder="0"
+                            class="chat-iframe"
+                            title="@Stream.ChatTitle"
+                            loading="lazy">
+                    </iframe>
+                }
+                else if (Stream.IsYouTube)
+                {
+                    <iframe src="@Stream.ChatUrl"
+                            frameborder="0"
+                            class="chat-iframe"
+                            title="@Stream.ChatTitle"
+                            referrerpolicy="@Stream.ChatReferrerPolicy"
+                            loading="lazy">
+                    </iframe>
+                }
+                else if (Stream.IsKick)
+                {
+                    <iframe src="@Stream.ChatUrl"
+                            frameborder="0"
+                            class="chat-iframe"
+                            title="@Stream.ChatTitle"
+                            referrerpolicy="@Stream.ChatReferrerPolicy"
+                            loading="lazy">
+                    </iframe>
+                }
+                else
+                {
+                    <iframe src="@Stream.ChatUrl"
+                            frameborder="0"
+                            class="chat-iframe"
+                            title="@Stream.ChatTitle"
+                            loading="lazy">
+                    </iframe>
+                }
             </div>
         }
     </div>

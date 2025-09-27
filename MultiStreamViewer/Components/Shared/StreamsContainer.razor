@@ -24,7 +24,9 @@
     }
 </div>
 
-@code {    protected override void OnInitialized()
+@code {
+
+    protected override void OnInitialized()
     {
         StreamService.StreamsChanged += OnStreamsChanged;
     }
@@ -35,11 +37,15 @@
         {
             await OptimizeLayout();
         }
-    }    private async void OnStreamsChanged()
+    }
+
+    private async void OnStreamsChanged()
     {
         StateHasChanged();
         await OptimizeLayout();
-    }    private async Task OptimizeLayout()
+    }
+
+    private async Task OptimizeLayout()
     {
         try
         {
@@ -52,8 +58,10 @@
         {
             Console.WriteLine($"Layout optimization error: {ex.Message}");
         }
-    }    public void Dispose()
+    }
+    public void Dispose()
     {
         StreamService.StreamsChanged -= OnStreamsChanged;
     }
+
 }

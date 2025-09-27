@@ -114,12 +114,14 @@ fluent-listbox,
 
     .header-section fluent-stack:first-child {
         align-self: center;
-    }    fluent-toolbar {
+    }
+
+    fluent-toolbar {
         justify-content: center;
         flex-wrap: wrap;
         gap: 6px;
     }
-    
+
     .universal-input {
         width: 200px !important;
     }
@@ -129,7 +131,7 @@ fluent-listbox,
     .main-layout.with-chat-pane {
         flex-direction: column;
     }
-    
+
     .main-layout.with-chat-pane .chat-pane {
         width: 100%;
         height: 300px;
@@ -138,7 +140,7 @@ fluent-listbox,
     fluent-toolbar {
         gap: 4px;
     }
-    
+
     .universal-input {
         width: 160px !important;
     }

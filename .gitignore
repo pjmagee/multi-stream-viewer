@@ -1,2 +1,27 @@
-bin
-obj
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio cache files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.userprefs
+*.rsuser
+
+# Rider / JetBrains
+.idea/
+
+# Logs / diagnostics
+*.log
+*.svclog
+*.pidb
+
+# Backup and temporary files
+*.psess
+*.vsp
+*.vspx
+*.tmp
+*.DS_Store
+Thumbs.db

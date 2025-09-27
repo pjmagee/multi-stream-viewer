@@ -1,4 +1,4 @@
-.NET 9 SDK and Blazor WebAssembly
+## .NET 9 SDK and Blazor WebAssembly
 
 - Follow FluentUI 
 - Reduce custom styling as much as possible
