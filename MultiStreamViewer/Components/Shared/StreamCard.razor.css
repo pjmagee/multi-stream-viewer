@@ -10,12 +10,10 @@
     position: relative;
     flex: 1;
     display: flex;
-    min-height: 400px; /* Ensure minimum height for proper video display */
 }
 
 .stream-content.with-chat {
     display: flex;
-    min-height: 450px; /* Slightly taller when chat is attached */
 }
 
 .stream-video {
@@ -29,7 +27,6 @@
     width: 100%;
     height: 100%;
     border: none;
-    min-height: 400px; /* Ensure minimum height for Twitch embed */
     aspect-ratio: 16/9; /* Maintain 16:9 aspect ratio for video */
 }
 
@@ -51,5 +48,4 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    min-height: 450px;
 }

@@ -33,6 +33,12 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            // Ensure the optimizer is initialized after the container is rendered
+            await JSRuntime.InvokeVoidAsync("streamOptimizer.ensureInitialized");
+        }
+        
         if (firstRender || StreamService.Streams.Any())
         {
             await OptimizeLayout();

@@ -25,6 +25,21 @@
     align-items: center;
     gap: 16px;
     min-height: 48px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Hide header in fullscreen mode */
+.main-layout.fullscreen-mode .header-section {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    width: 100%;
+}
+
+/* Adjust streams section in fullscreen to use full height */
+.main-layout.fullscreen-mode .streams-section {
+    padding-top: 0;
 }
 
 .app-title {

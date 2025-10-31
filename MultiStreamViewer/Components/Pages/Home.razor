@@ -13,10 +13,11 @@
 @inject AppInfoService AppInfo
 
 @implements IDisposable
+@implements IAsyncDisposable
 
 <PageTitle>Multi-Stream Viewer</PageTitle>
 
-<div class="main-layout @GetMainLayoutClass()">
+<div class="main-layout @GetMainLayoutClass() @(_isFullscreen ? "fullscreen-mode" : "")">
     <!-- Chat Pane - Left -->
     @if (IsLeftChatPane)
     {
@@ -104,6 +105,10 @@
                 {
                     <FluentDivider Role="DividerRole.Separator" Orientation="Orientation.Vertical" />
 
+                    <FluentButton IconStart="@(_isFullscreen ? new Icons.Regular.Size16.ArrowMinimize() : new Icons.Regular.Size16.ArrowMaximize())" 
+                        Appearance="Appearance.Stealth"
+                        OnClick="ToggleFullscreen" 
+                        Title="@(_isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen")" />
                     <FluentButton IconStart="@(new Icons.Regular.Size16.Share())" Appearance="Appearance.Stealth"
                         OnClick="ShareUrlToClipboard" Title="Share URL" />
                     <FluentButton IconStart="@(new Icons.Regular.Size16.Settings())" Appearance="Appearance.Stealth"
@@ -195,6 +200,8 @@
     private string _universalInput = string.Empty;
     private bool _isManageDialogHidden = true;
     private bool _showInputHelp = false;
+    private bool _isFullscreen = false;
+    private IJSObjectReference? _fullscreenModule;
 
     protected override void OnInitialized()
     {
@@ -212,6 +219,44 @@
             {
                 // Handle URL parsing errors
                 Console.WriteLine($"Error parsing URL segments: {ex.Message}");
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _fullscreenModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/fullscreen-handler.js");
+                await _fullscreenModule.InvokeVoidAsync("initializeFullscreenHandler", DotNetObjectReference.Create(this));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing fullscreen handler: {ex.Message}");
+            }
+        }
+    }
+
+    [JSInvokable]
+    public void OnFullscreenChanged(bool isFullscreen)
+    {
+        _isFullscreen = isFullscreen;
+        StateHasChanged();
+    }
+
+    private async Task ToggleFullscreen()
+    {
+        if (_fullscreenModule is not null)
+        {
+            try
+            {
+                await _fullscreenModule.InvokeVoidAsync("toggleFullscreen");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error toggling fullscreen: {ex.Message}");
             }
         }
     }
@@ -525,6 +570,22 @@
     {
         StreamService.StreamsChanged -= StateHasChanged;
         StreamService.ChatSettingsChanged -= StateHasChanged;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_fullscreenModule is not null)
+        {
+            try
+            {
+                await _fullscreenModule.InvokeVoidAsync("cleanupFullscreenHandler");
+                await _fullscreenModule.DisposeAsync();
+            }
+            catch
+            {
+                // Ignore disposal errors
+            }
+        }
     }
 
 }

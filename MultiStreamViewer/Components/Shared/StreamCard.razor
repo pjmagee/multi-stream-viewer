@@ -7,28 +7,30 @@
         <div class="stream-video">
             @if (Stream.IsTwitch)
             {
-        <iframe src="@Stream.EmbedUrl"
+        <iframe id="embed_@Stream.StreamerName"
+            src="@Stream.EmbedUrl"
             class="stream-iframe"
             title="@Stream.VideoTitle"
             width="100%"
             height="100%"
             frameborder="0"
             allow="@Stream.VideoPermissions"
-            allowfullscreen
+            allowfullscreen="true"
             scrolling="no"
             loading="lazy">
                 </iframe>
             }
             else if (Stream.IsYouTube)
             {
-                <iframe src="@Stream.EmbedUrl"
+                <iframe id="embed_@Stream.StreamerName"
+                        src="@Stream.EmbedUrl"
                         class="stream-iframe"
                         title="@Stream.VideoTitle"
             width="100%"
             height="100%"
             frameborder="0"
                         allow="@Stream.VideoPermissions"
-                        allowfullscreen
+                        allowfullscreen="true"
                         referrerpolicy="@Stream.VideoReferrerPolicy"
             scrolling="no"
             loading="lazy">
@@ -36,27 +38,29 @@
             }
             else if (Stream.IsKick)
             {
-        <iframe src="@Stream.EmbedUrl"
+        <iframe id="embed_@Stream.StreamerName"
+                src="@Stream.EmbedUrl"
                         class="stream-iframe"
                         title="@Stream.VideoTitle"
             width="100%"
             height="100%"
             frameborder="0"
                         allow="@Stream.VideoPermissions"
-                        allowfullscreen
+                        allowfullscreen="true"
             scrolling="no"
             loading="lazy">
                 </iframe>
             }
             else
             {
-                <iframe src="@Stream.EmbedUrl"
+                <iframe id="embed_@Stream.StreamerName"
+                        src="@Stream.EmbedUrl"
                         frameborder="0"
                         class="stream-iframe"
                         title="@Stream.VideoTitle"
             width="100%"
             height="100%"
-                        allowfullscreen
+                        allowfullscreen="true"
             scrolling="no"
             loading="lazy">
                 </iframe>

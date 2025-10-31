@@ -6,20 +6,27 @@
 			"type": "shell",
 			"command": "dotnet",
 			"args": [
-				"run"
+				"run",
+				"--project",
+				"${workspaceFolder}/MultiStreamViewer/MultiStreamViewer.csproj"
 			],
 			"group": "build",
 			"isBackground": true,
 			"problemMatcher": []
 		},
 		{
-			"label": "Run MultiStreamViewer",
+			"label": "Watch MultiStreamViewer (Hot Reload)",
 			"type": "shell",
 			"command": "dotnet",
 			"args": [
-				"watch"
+				"watch",
+				"--project",
+				"${workspaceFolder}/MultiStreamViewer/MultiStreamViewer.csproj"
 			],
-			"group": "build",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
 			"isBackground": true,
 			"problemMatcher": []
 		}
