@@ -121,7 +121,8 @@ public class StreamInfo
     private static string GetTwitchEmbedUrl(string streamerName)
     {
         var parentQuery = BuildTwitchParentQueryString();
-        return $"https://player.twitch.tv/?muted=true&channel={streamerName}&{parentQuery}&autoplay=false";
+        // Autoplay true with muted improves player init reliability in some browsers
+        return $"https://player.twitch.tv/?muted=true&channel={streamerName}&{parentQuery}&autoplay=true";
     }
 
     private static string GetChatUrl(StreamPlatform platform, string streamerName)
