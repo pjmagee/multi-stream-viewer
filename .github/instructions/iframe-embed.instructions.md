@@ -1,5 +1,7 @@
 ## twitch example
 
+https://dev.twitch.tv/docs/embed/
+
 <div style="left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.25%;"><iframe src="https://player.twitch.tv/?video=992175865&autoplay=false&parent=iframely.com&parent=iframe.ly&parent=cdn.iframe.ly&parent=iframely.net&parent=if-cdn.com" style="top: 0; left: 0; width: 100%; height: 100%; position: absolute; border: 0;" allowfullscreen scrolling="no" allow="encrypted-media *;"></iframe></div>
 
 

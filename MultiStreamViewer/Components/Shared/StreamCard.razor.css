@@ -19,7 +19,8 @@
 .stream-video {
     flex: 1;
     display: flex;
-    min-height: 0;
+    /* Ensure a concrete minimum height so the player is visible at init */
+    min-height: 360px;
     position: relative;
 }
 
@@ -28,6 +29,9 @@
     height: 100%;
     border: none;
     aspect-ratio: 16/9; /* Maintain 16:9 aspect ratio for video */
+    /* Avoid initial hidden states that break autoplay visibility checks */
+    visibility: visible;
+    opacity: 1;
 }
 
 .chat-iframe {
