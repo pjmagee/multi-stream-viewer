@@ -178,22 +178,6 @@ public class StreamInfo
         {
             hosts.Add(primaryHost);
 
-            // Always add www. version for non-localhost domains
-            if (!primaryHost.Equals("localhost", StringComparison.OrdinalIgnoreCase) &&
-                !primaryHost.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase))
-            {
-                if (primaryHost.StartsWith("www.", StringComparison.OrdinalIgnoreCase))
-                {
-                    // If primary has www., also add without www.
-                    hosts.Add(primaryHost.Substring(4));
-                }
-                else
-                {
-                    // If primary doesn't have www., also add with www.
-                    hosts.Add($"www.{primaryHost}");
-                }
-            }
-
             if (primaryHost.Equals("localhost", StringComparison.OrdinalIgnoreCase))
             {
                 hosts.Add("127.0.0.1");
