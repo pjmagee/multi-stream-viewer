@@ -4,9 +4,9 @@ namespace MultiStreamViewer.Models;
 
 public static class PlatformIcons
 {
-    public readonly static Icon Twitch = Icon.FromImageUrl("images/twitch.ico");
+    public static readonly Icon Twitch = Icon.FromImageUrl("images/twitch.ico");
 
-    public readonly static Icon YouTube = Icon.FromImageUrl("images/youtube.ico");
+    public static readonly Icon YouTube = Icon.FromImageUrl("images/youtube.ico");
 
-    public readonly static Icon Kick = Icon.FromImageUrl("images/kick.ico");
+    public static readonly Icon Kick = Icon.FromImageUrl("images/kick.ico");
 }

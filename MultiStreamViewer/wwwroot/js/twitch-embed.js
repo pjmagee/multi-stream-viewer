@@ -44,6 +44,9 @@ export async function initializeTwitchEmbed(elementId, channel, parentHosts) {
 
     disposeTwitchEmbed(elementId);
 
+    host.style.width = "100%";
+    host.style.height = "100%";
+
     const normalizedParents = Array.isArray(parentHosts) && parentHosts.length > 0
         ? parentHosts
         : [window.location.hostname];

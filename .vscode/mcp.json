@@ -1,0 +1,16 @@
+{
+  "servers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "chrome-devtools-mcp@latest",
+        "--no-usage-statistics",
+        "--executablePath",
+        "C:/Users/patri/AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe"
+      ],
+      "env": {
+        "CHROME_PATH": "C:/Users/patri/AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe"
+      }
+    }
+  }
+}

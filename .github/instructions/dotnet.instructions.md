@@ -1,5 +1,7 @@
-## .NET 9 SDK and Blazor WebAssembly
+## .NET SDK and Blazor WebAssembly
 
+- Dotnet https://dotnet.microsoft.com/en-us/download
+- Use latest LTS .NET Version
 - Follow FluentUI 
 - Reduce custom styling as much as possible
 - Adhere to FluentUI guidelines and components

@@ -1,3 +1,9 @@
+---
+name: 'iframe documentation'
+description: 'iframe documentation'
+applyTo: '**'
+---
+
 ## twitch example
 
 https://dev.twitch.tv/docs/embed/
