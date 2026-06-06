@@ -1,5 +1,7 @@
 @inject StreamService StreamService
+@inject IJSRuntime JsRuntime
 @implements IDisposable
+@implements IAsyncDisposable
 
 <div class="stream-container">
     <div class="stream-content @(StreamService.ChatMode == ChatDisplayMode.Attached ? "with-chat" : "")">
@@ -7,17 +9,10 @@
         <div class="stream-video">
             @if (Stream.IsTwitch)
             {
-        <iframe id="embed_@Stream.StreamerName"
-            src="@Stream.EmbedUrl"
-            class="stream-iframe"
-            title="@Stream.VideoTitle"
-            width="100%"
-            height="100%"
-            frameborder="0"
-            allow="@Stream.VideoPermissions"
-            allowfullscreen="true"
-            scrolling="no">
-                </iframe>
+                <div id="@TwitchEmbedHostId"
+                     class="stream-embed-host"
+                     title="@Stream.VideoTitle">
+                </div>
             }
             else if (Stream.IsYouTube)
             {
@@ -115,9 +110,38 @@
 @code {
     [Parameter] public StreamInfo Stream { get; set; } = new();
 
+    private IJSObjectReference? _twitchEmbedModule;
+    private string? _lastInitializedTwitchChannel;
+
+    private string TwitchEmbedHostId => $"embed_{Stream.Id.Replace("-", string.Empty, StringComparison.Ordinal)}";
+
     protected override void OnInitialized()
     {
         StreamService.ChatSettingsChanged += OnChatSettingsChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!Stream.IsTwitch)
+        {
+            return;
+        }
+
+        if (_lastInitializedTwitchChannel is not null
+            && _lastInitializedTwitchChannel.Equals(Stream.StreamerName, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        _twitchEmbedModule ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/twitch-embed.js");
+
+        await _twitchEmbedModule.InvokeVoidAsync(
+            "initializeTwitchEmbed",
+            TwitchEmbedHostId,
+            Stream.StreamerName,
+            Stream.TwitchParentHosts);
+
+        _lastInitializedTwitchChannel = Stream.StreamerName;
     }
 
     private void OnChatSettingsChanged()
@@ -128,5 +152,21 @@
     public void Dispose()
     {
         StreamService.ChatSettingsChanged -= OnChatSettingsChanged;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_twitchEmbedModule is not null)
+        {
+            try
+            {
+                await _twitchEmbedModule.InvokeVoidAsync("disposeTwitchEmbed", TwitchEmbedHostId);
+                await _twitchEmbedModule.DisposeAsync();
+            }
+            catch
+            {
+                // Ignore disposal failures during teardown.
+            }
+        }
     }
 }

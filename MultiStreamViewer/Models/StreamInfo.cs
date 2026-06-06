@@ -4,24 +4,24 @@ public enum StreamPlatform
 {
     Twitch,
     YouTube,
-    Kick
+    Kick,
 }
 
 public enum LayoutMode
 {
-    Grid
+    Grid,
 }
 
 public enum ChatDisplayMode
 {
     Pane,
-    Attached
+    Attached,
 }
 
 public enum ChatPanePosition
 {
     Left,
-    Right
+    Right,
 }
 
 public class StreamInfo
@@ -40,35 +40,44 @@ public class StreamInfo
     public bool IsYouTube => Platform == StreamPlatform.YouTube;
     public bool IsKick => Platform == StreamPlatform.Kick;
 
-    public string VideoTitle => string.IsNullOrWhiteSpace(StreamerName)
-        ? $"{Platform} stream"
-        : $"{Platform} stream: {StreamerName}";
+    public string VideoTitle =>
+        string.IsNullOrWhiteSpace(StreamerName)
+            ? $"{Platform} stream"
+            : $"{Platform} stream: {StreamerName}";
 
-    public string ChatTitle => string.IsNullOrWhiteSpace(StreamerName)
-        ? $"{Platform} chat"
-        : $"{Platform} chat: {StreamerName}";
+    public string ChatTitle =>
+        string.IsNullOrWhiteSpace(StreamerName)
+            ? $"{Platform} chat"
+            : $"{Platform} chat: {StreamerName}";
 
-    public string? VideoPermissions => Platform switch
-    {
-        StreamPlatform.Twitch => "autoplay; encrypted-media; fullscreen; picture-in-picture",
-        StreamPlatform.YouTube => "accelerometer *; clipboard-write *; encrypted-media *; gyroscope *; picture-in-picture *; web-share *;",
-        StreamPlatform.Kick => null,
-        _ => null
-    };
+    public string? VideoPermissions =>
+        Platform switch
+        {
+            StreamPlatform.Twitch => "autoplay; encrypted-media; fullscreen; picture-in-picture",
+            StreamPlatform.YouTube =>
+                "accelerometer *; clipboard-write *; encrypted-media *; gyroscope *; picture-in-picture *; web-share *;",
+            StreamPlatform.Kick => null,
+            _ => null,
+        };
 
-    public bool AllowFullscreen => Platform is StreamPlatform.Twitch or StreamPlatform.YouTube or StreamPlatform.Kick;
+    public bool AllowFullscreen =>
+        Platform is StreamPlatform.Twitch or StreamPlatform.YouTube or StreamPlatform.Kick;
 
-    public string? VideoReferrerPolicy => Platform switch
-    {
-        StreamPlatform.YouTube => "strict-origin-when-cross-origin",
-        _ => null
-    };
+    public string? VideoReferrerPolicy =>
+        Platform switch
+        {
+            StreamPlatform.YouTube => "strict-origin-when-cross-origin",
+            _ => null,
+        };
 
-    public string? ChatReferrerPolicy => Platform switch
-    {
-        StreamPlatform.YouTube => "strict-origin-when-cross-origin",
-        _ => null
-    };
+    public string? ChatReferrerPolicy =>
+        Platform switch
+        {
+            StreamPlatform.YouTube => "strict-origin-when-cross-origin",
+            _ => null,
+        };
+
+    public IReadOnlyList<string> TwitchParentHosts => GetTwitchParentHosts();
 
     public StreamInfo() { }
 
@@ -98,12 +107,12 @@ public class StreamInfo
 
     /// <summary>
     /// Gets the appropriate embed URL for the streaming platform
-    /// 
+    ///
     /// Platform Requirements:
     /// - Twitch: streamerName is the channel name (e.g., "shroud")
     /// - YouTube: streamerName should be the Video ID (e.g., "dQw4w9WgXcQ") NOT channel name
     /// - Kick: streamerName is the channel name (e.g., "trainwreckstv")
-    /// 
+    ///
     /// Note: For YouTube, users must provide the specific video ID of the live stream,
     /// not the channel name. This follows YouTube's embed requirements.
     /// </summary>
@@ -113,8 +122,9 @@ public class StreamInfo
         {
             StreamPlatform.Twitch => GetTwitchEmbedUrl(streamerName),
             StreamPlatform.YouTube => $"https://www.youtube.com/embed/{streamerName}?rel=0",
-            StreamPlatform.Kick => $"https://player.kick.com/{streamerName}?autoplay=false&muted=false",
-            _ => string.Empty
+            StreamPlatform.Kick =>
+                $"https://player.kick.com/{streamerName}?autoplay=false&muted=false",
+            _ => string.Empty,
         };
     }
 
@@ -132,7 +142,7 @@ public class StreamInfo
             StreamPlatform.Twitch => GetTwitchChatUrl(streamerName),
             StreamPlatform.YouTube => GetYouTubeChatUrl(streamerName),
             StreamPlatform.Kick => $"https://kick.com/{streamerName}/chatroom",
-            _ => string.Empty
+            _ => string.Empty,
         };
     }
 

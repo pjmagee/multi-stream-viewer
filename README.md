@@ -14,7 +14,7 @@ A Blazor WebAssembly application for watching multiple live streams simultaneous
 
 ### Prerequisites
 
-- .NET 9 SDK
+- .NET 10 SDK
 
 ### Run Locally
 
@@ -52,7 +52,7 @@ Visit: `https://msv.ghp.magaoidh.pro/`
 
 ## Technology
 
-- Blazor WebAssembly (.NET 9)
+- Blazor WebAssembly (.NET 10)
 - Microsoft FluentUI Components
 - GitHub Pages deployment
 

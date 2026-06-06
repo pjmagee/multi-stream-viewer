@@ -6,7 +6,7 @@
 
 ## GitHub Pages & Blazor WebAssembly
 
-<https://learn.microsoft.com/en-us/aspnet/core/blazor/host-and-deploy/webassembly/github-pages?view=aspnetcore-9.0>
+<https://learn.microsoft.com/en-us/aspnet/core/blazor/host-and-deploy/webassembly/github-pages?view=aspnetcore-10.0>
 
 ## Embedding streams
 
