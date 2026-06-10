@@ -4,9 +4,19 @@
 @implements IDisposable
 @implements IAsyncDisposable
 
-<div class="stream-container stream-card">
+<div class="stream-container stream-card @(IsDragActive ? "dragging" : "") @(IsDragSource ? "drag-source" : "")"
+     @ondragover:preventDefault="true"
+     @ondragenter:preventDefault="true"
+     @ondrop="OnDrop">
 
     <div class="card-controls">
+        <div class="drag-handle"
+             draggable="true"
+             @ondragstart="OnDragStart"
+             @ondragend="OnDragEnd"
+             title="Drag to reorder">
+            <FluentIcon Value="@(new Icons.Regular.Size16.ReOrderDotsVertical())" />
+        </div>
         <FluentButton Appearance="Appearance.Stealth"
                       IconStart="@(new Icons.Regular.Size16.Open())"
                       OnClick="PopOut"
@@ -175,9 +185,30 @@
 
     private string EmbedIframeId => $"embed_{Stream.StreamerName}";
 
+    private bool IsDragActive => StreamService.DraggingStreamId is not null;
+    private bool IsDragSource => string.Equals(StreamService.DraggingStreamId, Stream.Id, StringComparison.Ordinal);
+
     protected override void OnInitialized()
     {
         StreamService.ChatSettingsChanged += OnChatSettingsChanged;
+        StreamService.DragStateChanged += OnDragStateChanged;
+    }
+
+    private void OnDragStateChanged() => InvokeAsync(StateHasChanged);
+
+    private void OnDragStart() => StreamService.BeginDrag(Stream.Id);
+
+    private void OnDragEnd() => StreamService.EndDrag();
+
+    private void OnDrop()
+    {
+        var dragged = StreamService.DraggingStreamId;
+        if (!string.IsNullOrEmpty(dragged))
+        {
+            StreamService.MoveStream(dragged, Stream.Id);
+        }
+
+        StreamService.EndDrag();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -289,6 +320,7 @@
     public void Dispose()
     {
         StreamService.ChatSettingsChanged -= OnChatSettingsChanged;
+        StreamService.DragStateChanged -= OnDragStateChanged;
     }
 
     public async ValueTask DisposeAsync()

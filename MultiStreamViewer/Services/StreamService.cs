@@ -11,8 +11,12 @@ public class StreamService
     public ChatPanePosition ChatPosition { get; set; } = ChatPanePosition.Right;
     public bool IsChatPaneVisible { get; set; } = false;
 
+    /// <summary>Id of the stream currently being dragged for reordering, or null.</summary>
+    public string? DraggingStreamId { get; private set; }
+
     public event Action? StreamsChanged;
     public event Action? ChatSettingsChanged;
+    public event Action? DragStateChanged;
     public event Action? ManageDialogRequested;
 
     public StreamService(NavigationManager navigationManager)
@@ -51,6 +55,55 @@ public class StreamService
             stream.Update(platform, streamerName);
             StreamsChanged?.Invoke();
         }
+    }
+
+    /// <summary>Moves the dragged stream to the dropped-on stream's position.</summary>
+    public void MoveStream(string fromId, string toId)
+    {
+        if (string.Equals(fromId, toId, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        var fromIndex = IndexOfId(fromId);
+        var toIndex = IndexOfId(toId);
+        if (fromIndex < 0 || toIndex < 0 || fromIndex == toIndex)
+        {
+            return;
+        }
+
+        Streams.Move(fromIndex, toIndex);
+        StreamsChanged?.Invoke();
+    }
+
+    public void BeginDrag(string streamId)
+    {
+        DraggingStreamId = streamId;
+        DragStateChanged?.Invoke();
+    }
+
+    public void EndDrag()
+    {
+        if (DraggingStreamId is null)
+        {
+            return;
+        }
+
+        DraggingStreamId = null;
+        DragStateChanged?.Invoke();
+    }
+
+    private int IndexOfId(string id)
+    {
+        for (var i = 0; i < Streams.Count; i++)
+        {
+            if (string.Equals(Streams[i].Id, id, StringComparison.Ordinal))
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     /// <summary>

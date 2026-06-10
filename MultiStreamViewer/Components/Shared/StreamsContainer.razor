@@ -5,9 +5,12 @@
 <div id="streams-container" class="streams-container grid-container">
     @if (StreamService.Streams.Any())
     {
-        @foreach (var stream in StreamService.Streams)
+        @* DOM order is kept stable (by Id) so reordering never moves an iframe
+           in the DOM (which would reload it). Visual position is driven by the
+           CSS `order` the optimizer applies from data-order. *@
+        @foreach (var stream in StreamService.Streams.OrderBy(s => s.Id, StringComparer.Ordinal))
         {
-            <div class="stack-item" @key="stream.Id">
+            <div class="stack-item" @key="stream.Id" data-order="@StreamService.Streams.IndexOf(stream)">
                 <StreamCard Stream="stream" />
             </div>
         }

@@ -91,6 +91,32 @@
     opacity: 1;
 }
 
+/* Drag-to-reorder handle */
+.drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    color: #fff;
+    cursor: grab;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+/* While a drag is in progress, make every player click-through so the cards
+   (not the iframes) receive dragover/drop. */
+.stream-container.dragging .stream-iframe,
+.stream-container.dragging .stream-embed-host {
+    pointer-events: none;
+}
+
+/* The tile being dragged. */
+.stream-container.drag-source {
+    opacity: 0.5;
+}
+
 /* Flip card: front = live embed, back = replace form */
 .flip-card {
     position: relative;

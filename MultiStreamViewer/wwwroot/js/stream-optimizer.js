@@ -101,6 +101,9 @@ window.streamOptimizer = {
             item.style.maxHeight = bestHeight + 'px';
             // Remove fixed width to allow flexbox to control width
             item.style.width = '';
+            // Visual position (drag-to-reorder) — DOM order stays stable so iframes
+            // don't reload; flexbox `order` arranges them.
+            item.style.order = item.dataset.order ?? '';
         });
 
         // Apply iframe dimensions to maintain aspect ratio
