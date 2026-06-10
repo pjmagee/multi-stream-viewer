@@ -1,0 +1,3 @@
+interface:
+  display_name: "stats"
+  short_description: "Display project statistics — phases, plans, requirements, git metrics, and timeline"

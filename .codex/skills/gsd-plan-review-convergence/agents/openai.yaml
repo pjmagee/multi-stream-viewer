@@ -1,0 +1,3 @@
+interface:
+  display_name: "plan review convergence"
+  short_description: "Cross-AI plan convergence loop — replan with review feedback until no HIGH concerns remain."

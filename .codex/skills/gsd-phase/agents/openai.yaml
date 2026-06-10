@@ -1,0 +1,3 @@
+interface:
+  display_name: "phase"
+  short_description: "CRUD for phases in ROADMAP.md — add, insert, remove, or edit phases"

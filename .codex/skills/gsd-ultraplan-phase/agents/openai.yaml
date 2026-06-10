@@ -1,0 +1,3 @@
+interface:
+  display_name: "ultraplan phase"
+  short_description: "[BETA] Offload plan phase to Claude Code's ultraplan cloud; review in browser and import back."

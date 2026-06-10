@@ -1,0 +1,3 @@
+interface:
+  display_name: "undo"
+  short_description: "Safe git revert. Roll back phase or plan commits using the phase manifest with dependency checks."

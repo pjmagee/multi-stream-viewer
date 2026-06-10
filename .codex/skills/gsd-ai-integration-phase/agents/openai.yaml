@@ -1,0 +1,3 @@
+interface:
+  display_name: "ai integration phase"
+  short_description: "Generate an AI-SPEC.md design contract for phases that involve building AI systems."

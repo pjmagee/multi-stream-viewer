@@ -1,0 +1,3 @@
+interface:
+  display_name: "settings"
+  short_description: "Configure GSD workflow toggles and model profile"

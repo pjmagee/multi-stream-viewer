@@ -1,0 +1,3 @@
+interface:
+  display_name: "new project"
+  short_description: "Initialize a new project with deep context gathering and PROJECT.md"

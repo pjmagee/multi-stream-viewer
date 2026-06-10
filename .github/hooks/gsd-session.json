@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "type": "command",
+        "bash": "if [ -f .planning/STATE.md ]; then printf '%s' '{\"additionalContext\":\"GSD: .planning/STATE.md present - review the current phase and any blockers before acting.\"}'; else printf '%s' '{\"additionalContext\":\"GSD: no .planning/ workflow found - run /gsd-new-project to start a tracked workflow.\"}'; fi",
+        "powershell": "if (Test-Path .planning/STATE.md) { '{\"additionalContext\":\"GSD: .planning/STATE.md present - review the current phase and any blockers before acting.\"}' } else { '{\"additionalContext\":\"GSD: no .planning/ workflow found - run /gsd-new-project to start a tracked workflow.\"}' }",
+        "timeoutSec": 10
+      }
+    ]
+  }
+}

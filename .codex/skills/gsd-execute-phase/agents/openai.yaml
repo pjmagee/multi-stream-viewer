@@ -1,0 +1,3 @@
+interface:
+  display_name: "execute phase"
+  short_description: "Execute all plans in a phase with wave-based parallelization"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "ui phase"
+  short_description: "Generate UI design contract (UI-SPEC.md) for frontend phases"

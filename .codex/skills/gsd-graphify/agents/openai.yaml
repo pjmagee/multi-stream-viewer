@@ -1,0 +1,3 @@
+interface:
+  display_name: "graphify"
+  short_description: "Build, query, and inspect the project knowledge graph in .planning/graphs/"

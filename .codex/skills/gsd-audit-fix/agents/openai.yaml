@@ -1,0 +1,3 @@
+interface:
+  display_name: "audit fix"
+  short_description: "Autonomous audit-to-fix pipeline — find issues, classify, fix, test, commit"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "docs update"
+  short_description: "Generate or update project documentation verified against the codebase"

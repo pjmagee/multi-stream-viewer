@@ -1,0 +1,3 @@
+interface:
+  display_name: "progress"
+  short_description: "Check progress, advance workflow, or dispatch freeform intent — the unified GSD situational command"

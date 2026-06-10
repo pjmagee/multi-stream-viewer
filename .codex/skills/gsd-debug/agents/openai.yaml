@@ -1,0 +1,3 @@
+interface:
+  display_name: "debug"
+  short_description: "Systematic debugging with persistent state across context resets"

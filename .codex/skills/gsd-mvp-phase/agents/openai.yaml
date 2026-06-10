@@ -1,0 +1,3 @@
+interface:
+  display_name: "mvp phase"
+  short_description: "Plan a phase as a vertical MVP slice — user story, SPIDR splitting, then plan-phase"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "validate phase"
+  short_description: "Retroactively audit and fill Nyquist validation gaps for a completed phase"

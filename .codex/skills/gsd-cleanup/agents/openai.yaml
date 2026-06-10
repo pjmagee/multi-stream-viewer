@@ -1,0 +1,3 @@
+interface:
+  display_name: "cleanup"
+  short_description: "Archive accumulated phase directories from completed milestones"

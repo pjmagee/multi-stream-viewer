@@ -1,0 +1,3 @@
+interface:
+  display_name: "eval review"
+  short_description: "Audit an executed AI phase's evaluation coverage and produce an EVAL-REVIEW.md remediation plan."

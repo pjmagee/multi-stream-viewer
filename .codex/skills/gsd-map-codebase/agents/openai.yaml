@@ -1,0 +1,3 @@
+interface:
+  display_name: "map codebase"
+  short_description: "Analyze codebase with parallel mapper agents to produce .planning/codebase/ documents"

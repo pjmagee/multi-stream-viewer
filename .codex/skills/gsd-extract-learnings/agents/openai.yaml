@@ -1,0 +1,3 @@
+interface:
+  display_name: "extract learnings"
+  short_description: "Extract decisions, lessons, patterns, and surprises from completed phase artifacts"

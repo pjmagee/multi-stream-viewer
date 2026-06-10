@@ -1,0 +1,3 @@
+interface:
+  display_name: "forensics"
+  short_description: "Post-mortem investigation for failed GSD workflows — diagnoses what went wrong."

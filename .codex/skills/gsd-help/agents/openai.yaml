@@ -1,0 +1,3 @@
+interface:
+  display_name: "help"
+  short_description: "Show available GSD commands and usage guide"

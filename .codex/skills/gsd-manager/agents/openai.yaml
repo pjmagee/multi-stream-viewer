@@ -1,0 +1,3 @@
+interface:
+  display_name: "manager"
+  short_description: "Interactive command center for managing multiple phases from one terminal"

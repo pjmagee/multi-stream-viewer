@@ -1,0 +1,3 @@
+interface:
+  display_name: "ns manage"
+  short_description: "config workspace | workstreams thread update ship inbox"

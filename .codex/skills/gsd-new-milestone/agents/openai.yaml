@@ -1,0 +1,3 @@
+interface:
+  display_name: "new milestone"
+  short_description: "Start a new milestone cycle — update PROJECT.md and route to requirements"

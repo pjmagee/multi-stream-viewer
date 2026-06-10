@@ -1,0 +1,3 @@
+interface:
+  display_name: "inbox"
+  short_description: "Triage and review open GitHub issues and PRs against project templates and contribution guidelines."

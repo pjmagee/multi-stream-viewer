@@ -1,0 +1,3 @@
+interface:
+  display_name: "profile user"
+  short_description: "Generate developer behavioral profile and create Claude-discoverable artifacts"

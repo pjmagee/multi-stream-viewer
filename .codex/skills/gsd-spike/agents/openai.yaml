@@ -1,0 +1,3 @@
+interface:
+  display_name: "spike"
+  short_description: "Spike an idea through experiential exploration, or propose what to spike next (frontier mode)"

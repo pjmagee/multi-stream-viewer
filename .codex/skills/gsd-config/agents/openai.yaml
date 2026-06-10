@@ -1,0 +1,3 @@
+interface:
+  display_name: "config"
+  short_description: "Configure GSD settings — workflow toggles, advanced knobs, integrations, and model profile"

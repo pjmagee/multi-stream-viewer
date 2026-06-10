@@ -1,0 +1,3 @@
+interface:
+  display_name: "autonomous"
+  short_description: "Run all remaining phases autonomously — discuss→plan→execute per phase"

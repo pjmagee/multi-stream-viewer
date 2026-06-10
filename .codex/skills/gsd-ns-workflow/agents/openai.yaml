@@ -1,0 +1,3 @@
+interface:
+  display_name: "ns workflow"
+  short_description: "workflow | discuss plan execute verify phase progress"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "verify work"
+  short_description: "Validate built features through conversational UAT"

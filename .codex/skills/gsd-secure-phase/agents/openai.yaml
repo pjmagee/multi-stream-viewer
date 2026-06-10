@@ -1,0 +1,3 @@
+interface:
+  display_name: "secure phase"
+  short_description: "Retroactively verify threat mitigations for a completed phase"

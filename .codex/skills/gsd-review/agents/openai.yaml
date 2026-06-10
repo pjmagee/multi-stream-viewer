@@ -1,0 +1,3 @@
+interface:
+  display_name: "review"
+  short_description: "Request cross-AI peer review of phase plans from external AI CLIs"

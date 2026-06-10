@@ -1,0 +1,3 @@
+interface:
+  display_name: "ingest docs"
+  short_description: "Bootstrap or merge a .planning/ setup from existing ADRs, PRDs, SPECs, and docs in a repo."

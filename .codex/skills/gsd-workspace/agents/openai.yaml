@@ -1,0 +1,3 @@
+interface:
+  display_name: "workspace"
+  short_description: "Manage GSD workspaces — create, list, or remove isolated workspace environments"

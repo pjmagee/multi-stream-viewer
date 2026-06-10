@@ -1,0 +1,3 @@
+interface:
+  display_name: "health"
+  short_description: "Diagnose planning directory health and optionally repair issues"

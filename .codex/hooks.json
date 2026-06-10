@@ -1,0 +1,46 @@
+{
+  "SessionStart": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "\"D:/Projects/pjmagee/multi-stream-viewer/.codex/hooks/gsd-check-update.cmd\"",
+          "commandWindows": "\"D:/Projects/pjmagee/multi-stream-viewer/.codex/hooks/gsd-check-update.cmd\""
+        }
+      ]
+    }
+  ],
+  "SubagentStart": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "\"D:/Projects/pjmagee/multi-stream-viewer/.codex/hooks/gsd-context-monitor.cmd\"",
+          "timeout": 10
+        }
+      ]
+    }
+  ],
+  "Stop": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "\"D:/Projects/pjmagee/multi-stream-viewer/.codex/hooks/gsd-context-monitor.cmd\"",
+          "timeout": 10
+        }
+      ]
+    }
+  ],
+  "PostToolUse": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "\"D:/Projects/pjmagee/multi-stream-viewer/.codex/hooks/gsd-context-monitor.cmd\"",
+          "timeout": 10
+        }
+      ]
+    }
+  ]
+}
