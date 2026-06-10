@@ -56,6 +56,11 @@
 
                 <FluentDivider Role="DividerRole.Separator" Orientation="Orientation.Vertical" />
 
+                <!-- Watch-together session sync -->
+                <SyncControl />
+
+                <FluentDivider Role="DividerRole.Separator" Orientation="Orientation.Vertical" />
+
                 <!-- Universal Input -->
                 <FluentTextField @bind-Value="_universalInput" Id="universal-input"
                     Placeholder="URL or t/username, y/videoid, k/username" @onkeyup="HandleUniversalKeyUp"
@@ -201,11 +206,12 @@
     private bool _isManageDialogHidden = true;
     private bool _showInputHelp = false;
     private bool _isFullscreen = false;
+    private bool _isLoadingFromUrl = false;
     private IJSObjectReference? _fullscreenModule;
 
     protected override void OnInitialized()
     {
-        StreamService.StreamsChanged += StateHasChanged;
+        StreamService.StreamsChanged += OnStreamsChanged;
         StreamService.ChatSettingsChanged += StateHasChanged;
 
         // Load streams from URL if segments are provided
@@ -213,6 +219,7 @@
         {
             try
             {
+                _isLoadingFromUrl = true;
                 LoadStreamsFromUrl();
             }
             catch (Exception ex)
@@ -220,6 +227,23 @@
                 // Handle URL parsing errors
                 Console.WriteLine($"Error parsing URL segments: {ex.Message}");
             }
+            finally
+            {
+                _isLoadingFromUrl = false;
+            }
+        }
+    }
+
+    // Keeps the shareable URL in sync with any stream change, including inline
+    // remove/replace actions raised from individual stream cards. Skipped during
+    // the initial URL parse so we don't re-navigate to the URL we're loading from.
+    private void OnStreamsChanged()
+    {
+        StateHasChanged();
+
+        if (!_isLoadingFromUrl)
+        {
+            UpdateUrl();
         }
     }
 
@@ -303,7 +327,6 @@
     private void ClearAllStreams()
     {
         StreamService.ClearAllStreams();
-        UpdateUrl();
     }
 
     private void OpenManageStreamsDialog()
@@ -319,13 +342,11 @@
     private void RemoveStream(StreamInfo stream)
     {
         StreamService.RemoveStream(stream.Id);
-        UpdateUrl();
     }
 
     private void ClearAllStreamsFromDialog()
     {
         StreamService.ClearAllStreams();
-        UpdateUrl();
         _isManageDialogHidden = true;
     }
 
@@ -406,10 +427,6 @@
             {
                 await DialogService.ShowWarningAsync("No valid streams found. Use full URLs or shorthand: t/user, y/videoid, k/user",
                 "No Streams Added");
-            }
-            else
-            {
-                UpdateUrl();
             }
         }
         catch (Exception ex)
@@ -568,7 +585,7 @@
 
     public void Dispose()
     {
-        StreamService.StreamsChanged -= StateHasChanged;
+        StreamService.StreamsChanged -= OnStreamsChanged;
         StreamService.ChatSettingsChanged -= StateHasChanged;
     }
 

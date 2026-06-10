@@ -11,8 +11,15 @@ public class StreamService
     public ChatPanePosition ChatPosition { get; set; } = ChatPanePosition.Right;
     public bool IsChatPaneVisible { get; set; } = false;
 
+    /// <summary>
+    /// Id of the stream currently allowed to play audio ("solo"), or null when
+    /// every stream is muted. At most one stream is audible at a time.
+    /// </summary>
+    public string? ActiveAudioStreamId { get; private set; }
+
     public event Action? StreamsChanged;
     public event Action? ChatSettingsChanged;
+    public event Action? AudioSettingsChanged;
     public event Action? ManageDialogRequested;
 
     public StreamService(NavigationManager navigationManager)
@@ -36,7 +43,95 @@ public class StreamService
         if (stream != null)
         {
             Streams.Remove(stream);
+            ClearSoloIfMatches(streamId);
             StreamsChanged?.Invoke();
+        }
+    }
+
+    public void ReplaceStream(string streamId, StreamPlatform platform, string streamerName)
+    {
+        if (string.IsNullOrWhiteSpace(streamerName))
+            return;
+
+        var stream = Streams.FirstOrDefault(s => s.Id == streamId);
+        if (stream != null)
+        {
+            stream.Update(platform, streamerName);
+            // The channel changed underneath us, so reset its audio to muted.
+            ClearSoloIfMatches(streamId);
+            StreamsChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Makes the given stream the only audible one. Toggling the stream that is
+    /// already soloed mutes everything.
+    /// </summary>
+    public void ToggleSoloAudio(string streamId)
+    {
+        SetSoloAudio(string.Equals(ActiveAudioStreamId, streamId, StringComparison.Ordinal)
+            ? null
+            : streamId);
+    }
+
+    /// <summary>
+    /// Sets the soloed stream directly (null mutes all). Used by session sync.
+    /// </summary>
+    public void SetSoloAudio(string? streamId)
+    {
+        if (string.Equals(ActiveAudioStreamId, streamId, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        ActiveAudioStreamId = streamId;
+        AudioSettingsChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Reconciles the local stream list to match a synced snapshot, preserving
+    /// existing <see cref="StreamInfo"/> instances (and their embeds) for streams
+    /// that are unchanged so they don't reload. Streams are matched by Id, which
+    /// is shared across the session.
+    /// </summary>
+    public void ApplySyncedStreams(IReadOnlyList<(string Id, StreamPlatform Platform, string Name)> snapshot)
+    {
+        var existing = Streams.ToDictionary(s => s.Id, StringComparer.Ordinal);
+        var reconciled = new List<StreamInfo>(snapshot.Count);
+
+        foreach (var (id, platform, name) in snapshot)
+        {
+            if (existing.TryGetValue(id, out var stream))
+            {
+                if (stream.Platform != platform
+                    || !string.Equals(stream.StreamerName, name, StringComparison.OrdinalIgnoreCase))
+                {
+                    stream.Update(platform, name);
+                }
+
+                reconciled.Add(stream);
+            }
+            else
+            {
+                reconciled.Add(new StreamInfo(platform, name) { Id = id });
+            }
+        }
+
+        Streams.Clear();
+        foreach (var stream in reconciled)
+        {
+            Streams.Add(stream);
+        }
+
+        StreamsChanged?.Invoke();
+    }
+
+    private void ClearSoloIfMatches(string streamId)
+    {
+        if (string.Equals(ActiveAudioStreamId, streamId, StringComparison.Ordinal))
+        {
+            ActiveAudioStreamId = null;
+            AudioSettingsChanged?.Invoke();
         }
     }
 
@@ -104,6 +199,7 @@ public class StreamService
     public void ClearAllStreams()
     {
         Streams.Clear();
+        ActiveAudioStreamId = null;
         StreamsChanged?.Invoke();
     }
 

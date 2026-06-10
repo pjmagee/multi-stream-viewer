@@ -4,106 +4,161 @@
 @implements IAsyncDisposable
 
 <div class="stream-container stream-card">
-    <div class="stream-content @(StreamService.ChatMode == ChatDisplayMode.Attached ? "with-chat" : "")">
 
-        <div class="stream-video">
-            @if (Stream.IsTwitch)
-            {
-                <div id="@TwitchEmbedHostId"
-                     class="stream-embed-host"
-                     title="@Stream.VideoTitle">
-                </div>
-            }
-            else if (Stream.IsYouTube)
-            {
-                <iframe id="embed_@Stream.StreamerName"
-                        src="@Stream.EmbedUrl"
-                        class="stream-iframe"
-                        title="@Stream.VideoTitle"
-            width="100%"
-            height="100%"
-            frameborder="0"
-                        allow="@Stream.VideoPermissions"
-                        allowfullscreen="true"
-                        referrerpolicy="@Stream.VideoReferrerPolicy"
-            scrolling="no"
-            loading="lazy">
-                </iframe>
-            }
-            else if (Stream.IsKick)
-            {
-        <iframe id="embed_@Stream.StreamerName"
-                src="@Stream.EmbedUrl"
-                        class="stream-iframe"
-                        title="@Stream.VideoTitle"
-            width="100%"
-            height="100%"
-            frameborder="0"
-                        allow="@Stream.VideoPermissions"
-                        allowfullscreen="true"
-            scrolling="no"
-            loading="lazy">
-                </iframe>
-            }
-            else
-            {
-                <iframe id="embed_@Stream.StreamerName"
-                        src="@Stream.EmbedUrl"
+    <div class="card-controls @(IsAudible ? "audible" : "")">
+        <FluentButton Appearance="@(IsAudible ? Appearance.Accent : Appearance.Stealth)"
+                      IconStart="@GetAudioIcon()"
+                      OnClick="ToggleSolo"
+                      Title="@(IsAudible ? "You're listening to this — click to mute" : "Listen to this stream (mutes the others)")" />
+        <FluentButton Appearance="Appearance.Stealth"
+                      IconStart="@(new Icons.Regular.Size16.Open())"
+                      OnClick="PopOut"
+                      Title="Pop out into its own window" />
+        <FluentButton Appearance="Appearance.Stealth"
+                      IconStart="@(new Icons.Regular.Size16.Edit())"
+                      OnClick="StartReplace"
+                      Title="Replace this stream" />
+        <FluentButton Appearance="Appearance.Stealth"
+                      IconStart="@(new Icons.Regular.Size16.Dismiss())"
+                      OnClick="Remove"
+                      Title="Remove this stream" />
+    </div>
+
+    <div class="flip-card @(_isFlipped ? "flipped" : "")">
+        <div class="flip-inner">
+
+            <div class="flip-front">
+                <div class="stream-content @(StreamService.ChatMode == ChatDisplayMode.Attached ? "with-chat" : "")">
+
+                    <div class="stream-video">
+                        @if (Stream.IsTwitch)
+                        {
+                            <div id="@TwitchEmbedHostId"
+                                 class="stream-embed-host"
+                                 title="@Stream.VideoTitle">
+                            </div>
+                        }
+                        else if (Stream.IsYouTube)
+                        {
+                            <iframe id="embed_@Stream.StreamerName"
+                                    src="@Stream.EmbedUrl"
+                                    class="stream-iframe"
+                                    title="@Stream.VideoTitle"
+                        width="100%"
+                        height="100%"
                         frameborder="0"
-                        class="stream-iframe"
-                        title="@Stream.VideoTitle"
-            width="100%"
-            height="100%"
-                        allowfullscreen="true"
-            scrolling="no"
-            loading="lazy">
-                </iframe>
-            }
-        </div>
-        
-        @if (StreamService.ChatMode == ChatDisplayMode.Attached)
-        {
-            <div class="stream-chat">
-                @if (Stream.IsTwitch)
-                {
-                    <iframe src="@Stream.ChatUrl"
-                            frameborder="0"
-                            class="chat-iframe"
-                            title="@Stream.ChatTitle"
-                            loading="lazy">
-                    </iframe>
-                }
-                else if (Stream.IsYouTube)
-                {
-                    <iframe src="@Stream.ChatUrl"
-                            frameborder="0"
-                            class="chat-iframe"
-                            title="@Stream.ChatTitle"
-                            referrerpolicy="@Stream.ChatReferrerPolicy"
-                            loading="lazy">
-                    </iframe>
-                }
-                else if (Stream.IsKick)
-                {
-                    <iframe src="@Stream.ChatUrl"
-                            frameborder="0"
-                            class="chat-iframe"
-                            title="@Stream.ChatTitle"
-                            referrerpolicy="@Stream.ChatReferrerPolicy"
-                            loading="lazy">
-                    </iframe>
-                }
-                else
-                {
-                    <iframe src="@Stream.ChatUrl"
-                            frameborder="0"
-                            class="chat-iframe"
-                            title="@Stream.ChatTitle"
-                            loading="lazy">
-                    </iframe>
-                }
+                                    allow="@Stream.VideoPermissions"
+                                    allowfullscreen="true"
+                                    referrerpolicy="@Stream.VideoReferrerPolicy"
+                        scrolling="no"
+                        loading="lazy">
+                            </iframe>
+                        }
+                        else if (Stream.IsKick)
+                        {
+                    <iframe id="embed_@Stream.StreamerName"
+                            src="@Stream.EmbedUrl"
+                                    class="stream-iframe"
+                                    title="@Stream.VideoTitle"
+                        width="100%"
+                        height="100%"
+                        frameborder="0"
+                                    allow="@Stream.VideoPermissions"
+                                    allowfullscreen="true"
+                        scrolling="no"
+                        loading="lazy">
+                            </iframe>
+                        }
+                        else
+                        {
+                            <iframe id="embed_@Stream.StreamerName"
+                                    src="@Stream.EmbedUrl"
+                                    frameborder="0"
+                                    class="stream-iframe"
+                                    title="@Stream.VideoTitle"
+                        width="100%"
+                        height="100%"
+                                    allowfullscreen="true"
+                        scrolling="no"
+                        loading="lazy">
+                            </iframe>
+                        }
+                    </div>
+
+                    @if (StreamService.ChatMode == ChatDisplayMode.Attached)
+                    {
+                        <div class="stream-chat">
+                            @if (Stream.IsTwitch)
+                            {
+                                <iframe src="@Stream.ChatUrl"
+                                        frameborder="0"
+                                        class="chat-iframe"
+                                        title="@Stream.ChatTitle"
+                                        loading="lazy">
+                                </iframe>
+                            }
+                            else if (Stream.IsYouTube)
+                            {
+                                <iframe src="@Stream.ChatUrl"
+                                        frameborder="0"
+                                        class="chat-iframe"
+                                        title="@Stream.ChatTitle"
+                                        referrerpolicy="@Stream.ChatReferrerPolicy"
+                                        loading="lazy">
+                                </iframe>
+                            }
+                            else if (Stream.IsKick)
+                            {
+                                <iframe src="@Stream.ChatUrl"
+                                        frameborder="0"
+                                        class="chat-iframe"
+                                        title="@Stream.ChatTitle"
+                                        referrerpolicy="@Stream.ChatReferrerPolicy"
+                                        loading="lazy">
+                                </iframe>
+                            }
+                            else
+                            {
+                                <iframe src="@Stream.ChatUrl"
+                                        frameborder="0"
+                                        class="chat-iframe"
+                                        title="@Stream.ChatTitle"
+                                        loading="lazy">
+                                </iframe>
+                            }
+                        </div>
+                    }
+                </div>
             </div>
-        }
+
+            <div class="flip-back">
+                <div class="replace-form">
+                    <FluentLabel Typo="Typography.Body" Style="font-weight: 600;">
+                        Replace stream
+                    </FluentLabel>
+                    <FluentTextField @bind-Value="_editInput"
+                                     Immediate="true"
+                                     Placeholder="URL or t/user, y/videoid, k/user"
+                                     @onkeyup="HandleReplaceKeyUp"
+                                     Style="width: 100%;" />
+                    @if (!string.IsNullOrEmpty(_replaceError))
+                    {
+                        <FluentLabel Typo="Typography.Body" Color="Color.Error">
+                            @_replaceError
+                        </FluentLabel>
+                    }
+                    <div class="replace-actions">
+                        <FluentButton Appearance="Appearance.Neutral" OnClick="CancelReplace">
+                            Cancel
+                        </FluentButton>
+                        <FluentButton Appearance="Appearance.Accent" OnClick="SubmitReplace">
+                            Replace
+                        </FluentButton>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
 
@@ -111,37 +166,50 @@
     [Parameter] public StreamInfo Stream { get; set; } = new();
 
     private IJSObjectReference? _twitchEmbedModule;
+    private IJSObjectReference? _audioModule;
     private string? _lastInitializedTwitchChannel;
 
+    private bool _isFlipped;
+    private string _editInput = string.Empty;
+    private string? _replaceError;
+
+    // Tracks the mute state currently applied to the embed so we only call into
+    // JS (and only reload Kick) when the audible state actually changes.
+    private bool _appliedAudible;
+
+    private bool IsAudible => StreamService.ActiveAudioStreamId == Stream.Id;
+
     private string TwitchEmbedHostId => $"embed_{Stream.Id.Replace("-", string.Empty, StringComparison.Ordinal)}";
+
+    private string EmbedIframeId => $"embed_{Stream.StreamerName}";
 
     protected override void OnInitialized()
     {
         StreamService.ChatSettingsChanged += OnChatSettingsChanged;
+        StreamService.AudioSettingsChanged += OnAudioSettingsChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!Stream.IsTwitch)
+        if (Stream.IsTwitch
+            && (_lastInitializedTwitchChannel is null
+                || !_lastInitializedTwitchChannel.Equals(Stream.StreamerName, StringComparison.OrdinalIgnoreCase)))
         {
-            return;
+            _twitchEmbedModule ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/twitch-embed.js");
+
+            await _twitchEmbedModule.InvokeVoidAsync(
+                "initializeTwitchEmbed",
+                TwitchEmbedHostId,
+                Stream.StreamerName,
+                Stream.TwitchParentHosts);
+
+            _lastInitializedTwitchChannel = Stream.StreamerName;
+
+            // Fresh embed starts muted; re-apply the current solo state to it.
+            _appliedAudible = false;
         }
 
-        if (_lastInitializedTwitchChannel is not null
-            && _lastInitializedTwitchChannel.Equals(Stream.StreamerName, StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        _twitchEmbedModule ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/twitch-embed.js");
-
-        await _twitchEmbedModule.InvokeVoidAsync(
-            "initializeTwitchEmbed",
-            TwitchEmbedHostId,
-            Stream.StreamerName,
-            Stream.TwitchParentHosts);
-
-        _lastInitializedTwitchChannel = Stream.StreamerName;
+        await ApplyAudioAsync();
     }
 
     private void OnChatSettingsChanged()
@@ -149,9 +217,132 @@
         InvokeAsync(StateHasChanged);
     }
 
+    private void OnAudioSettingsChanged()
+    {
+        InvokeAsync(async () =>
+        {
+            StateHasChanged();
+            await ApplyAudioAsync();
+        });
+    }
+
+    private Icon GetAudioIcon() => IsAudible
+        ? new Icons.Regular.Size16.Speaker2()
+        : new Icons.Regular.Size16.SpeakerMute();
+
+    private void ToggleSolo()
+    {
+        StreamService.ToggleSoloAudio(Stream.Id);
+    }
+
+    private async Task PopOut()
+    {
+        _audioModule ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/stream-audio.js");
+        await _audioModule.InvokeVoidAsync("popOutStream", Stream.PopoutUrl, Stream.Id);
+    }
+
+    private async Task ApplyAudioAsync()
+    {
+        var desired = IsAudible;
+        if (_appliedAudible == desired)
+        {
+            return;
+        }
+
+        try
+        {
+            if (Stream.IsTwitch)
+            {
+                if (_twitchEmbedModule is null)
+                {
+                    return; // Embed not initialized yet; OnAfterRender re-applies once it is.
+                }
+
+                await _twitchEmbedModule.InvokeVoidAsync("setTwitchMuted", TwitchEmbedHostId, !desired);
+            }
+            else
+            {
+                _audioModule ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/stream-audio.js");
+
+                var function = Stream.Platform switch
+                {
+                    StreamPlatform.YouTube => "setYouTubeMuted",
+                    StreamPlatform.Kick => "setKickMuted",
+                    _ => "setIframeMuted",
+                };
+
+                await _audioModule.InvokeVoidAsync(function, EmbedIframeId, !desired);
+            }
+
+            _appliedAudible = desired;
+        }
+        catch
+        {
+            // Ignore transient interop failures (e.g. player not ready).
+        }
+    }
+
+    private void Remove()
+    {
+        StreamService.RemoveStream(Stream.Id);
+    }
+
+    private void StartReplace()
+    {
+        _replaceError = null;
+        _editInput = $"{Shorthand(Stream.Platform)}/{Stream.StreamerName}";
+        _isFlipped = true;
+    }
+
+    private void CancelReplace()
+    {
+        _isFlipped = false;
+        _replaceError = null;
+    }
+
+    private async Task SubmitReplace()
+    {
+        _replaceError = null;
+
+        if (!StreamInputParser.TryParse(_editInput, out var platform, out var identifier))
+        {
+            _replaceError = "Enter a valid stream URL or t/user, y/videoid, k/user.";
+            return;
+        }
+
+        // Flip back to the video face first, then swap the channel so the new
+        // embed appears on the front once the card has settled.
+        _isFlipped = false;
+        StateHasChanged();
+        await Task.Delay(300);
+
+        StreamService.ReplaceStream(Stream.Id, platform, identifier);
+    }
+
+    private async Task HandleReplaceKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SubmitReplace();
+        }
+        else if (e.Key == "Escape")
+        {
+            CancelReplace();
+        }
+    }
+
+    private static string Shorthand(StreamPlatform platform) => platform switch
+    {
+        StreamPlatform.Twitch => "t",
+        StreamPlatform.YouTube => "y",
+        StreamPlatform.Kick => "k",
+        _ => "t",
+    };
+
     public void Dispose()
     {
         StreamService.ChatSettingsChanged -= OnChatSettingsChanged;
+        StreamService.AudioSettingsChanged -= OnAudioSettingsChanged;
     }
 
     public async ValueTask DisposeAsync()
@@ -162,6 +353,18 @@
             {
                 await _twitchEmbedModule.InvokeVoidAsync("disposeTwitchEmbed", TwitchEmbedHostId);
                 await _twitchEmbedModule.DisposeAsync();
+            }
+            catch
+            {
+                // Ignore disposal failures during teardown.
+            }
+        }
+
+        if (_audioModule is not null)
+        {
+            try
+            {
+                await _audioModule.DisposeAsync();
             }
             catch
             {

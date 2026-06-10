@@ -16,6 +16,7 @@ builder.Services.AddScoped(sp => new HttpClient
 });
 builder.Services.AddFluentUIComponents();
 builder.Services.AddSingleton<StreamService>();
+builder.Services.AddSingleton<SyncService>();
 builder.Services.AddSingleton<AppInfoService>();
 
 // Build first to access JS runtime, then detect the true browser host.

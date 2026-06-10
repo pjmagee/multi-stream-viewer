@@ -1,0 +1,160 @@
+@inject SyncService Sync
+@inject NavigationManager Nav
+@inject IJSRuntime JsRuntime
+@inject IToastService ToastService
+@implements IDisposable
+
+<FluentButton Appearance="@(Sync.IsConnected ? Appearance.Accent : Appearance.Stealth)"
+              IconStart="@(new Icons.Regular.Size16.People())"
+              OnClick="OpenDialog"
+              Title="@(Sync.IsConnected ? $"Watch party — {Sync.PeerCount + 1} connected" : "Watch together")">
+    @(Sync.IsConnected ? (Sync.PeerCount + 1).ToString() : string.Empty)
+</FluentButton>
+
+<FluentDialog @bind-Hidden="@_hidden" Modal="true" TrapFocus="true" PreventScroll="true" AriaLabel="Watch together">
+    <FluentDialogHeader ShowDismiss="true">
+        <FluentStack VerticalAlignment="VerticalAlignment.Center">
+            <FluentIcon Value="@(new Icons.Regular.Size24.People())" />
+            <FluentLabel Typo="Typography.PaneHeader">Watch together</FluentLabel>
+        </FluentStack>
+    </FluentDialogHeader>
+
+    <FluentDialogBody>
+        @if (!Sync.IsConnected)
+        {
+            <FluentStack Orientation="Orientation.Vertical" VerticalGap="16">
+                <FluentLabel Typo="Typography.Body">
+                    Start a shared session and send the link to a friend. Adding, removing,
+                    replacing and focusing streams stays in sync for everyone.
+                </FluentLabel>
+                <FluentButton Appearance="Appearance.Accent"
+                              IconStart="@(new Icons.Regular.Size16.Play())"
+                              OnClick="Start">
+                    Start a session
+                </FluentButton>
+
+                <FluentDivider />
+
+                <FluentLabel Typo="Typography.Body" Color="Color.Disabled">Or join one:</FluentLabel>
+                <FluentTextField @bind-Value="_joinInput" Immediate="true"
+                                 Placeholder="Paste session link or code" Style="width: 100%;" />
+                <FluentButton Appearance="Appearance.Neutral"
+                              OnClick="Join"
+                              Disabled="@string.IsNullOrWhiteSpace(_joinInput)">
+                    Join
+                </FluentButton>
+            </FluentStack>
+        }
+        else
+        {
+            <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+                <FluentLabel Typo="Typography.Body" Style="font-weight: 600;">
+                    @(Sync.IsHost ? "Hosting" : "Connected") — @(Sync.PeerCount + 1) in session
+                </FluentLabel>
+                <FluentLabel Typo="Typography.Body">Share this link to invite others:</FluentLabel>
+                <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="8"
+                             VerticalAlignment="VerticalAlignment.Center">
+                    <FluentTextField Value="@ShareLink" ReadOnly="true" Style="flex: 1;" />
+                    <FluentButton IconStart="@(new Icons.Regular.Size16.Copy())"
+                                  OnClick="CopyLink" Title="Copy invite link" />
+                </FluentStack>
+                <FluentButton Appearance="Appearance.Neutral"
+                              IconStart="@(new Icons.Regular.Size16.PlugDisconnected())"
+                              OnClick="Leave">
+                    Leave session
+                </FluentButton>
+            </FluentStack>
+        }
+
+        @if (!string.IsNullOrEmpty(Sync.LastError))
+        {
+            <FluentLabel Color="Color.Error" Style="margin-top: 12px;">
+                Connection issue: @Sync.LastError
+            </FluentLabel>
+        }
+    </FluentDialogBody>
+
+    <FluentDialogFooter>
+        <FluentButton Appearance="Appearance.Stealth" OnClick="Close">Close</FluentButton>
+    </FluentDialogFooter>
+</FluentDialog>
+
+@code {
+    private bool _hidden = true;
+    private string _joinInput = string.Empty;
+
+    private string ShareLink => $"{Nav.BaseUri}?session={Sync.SessionId}";
+
+    protected override void OnInitialized()
+    {
+        Sync.StateChanged += OnStateChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender
+            && Nav.Uri.Contains("session=", StringComparison.OrdinalIgnoreCase)
+            && !Sync.IsConnected)
+        {
+            var sessionId = ExtractSession(Nav.Uri);
+            if (!string.IsNullOrWhiteSpace(sessionId))
+            {
+                await Sync.JoinSessionAsync(sessionId);
+            }
+        }
+    }
+
+    private void OnStateChanged() => InvokeAsync(StateHasChanged);
+
+    private void OpenDialog() => _hidden = false;
+
+    private void Close() => _hidden = true;
+
+    private async Task Start() => await Sync.StartSessionAsync();
+
+    private async Task Join()
+    {
+        await Sync.JoinSessionAsync(ExtractSession(_joinInput));
+        _joinInput = string.Empty;
+    }
+
+    private async Task Leave() => await Sync.LeaveSessionAsync();
+
+    private async Task CopyLink()
+    {
+        try
+        {
+            await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", ShareLink);
+            ToastService.ShowSuccess("Invite link copied!");
+        }
+        catch
+        {
+            ToastService.ShowError("Couldn't copy the link");
+        }
+    }
+
+    // Accepts a full invite link (…?session=ID) or a bare session id.
+    private static string ExtractSession(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return string.Empty;
+        }
+
+        input = input.Trim();
+        var idx = input.IndexOf("session=", StringComparison.OrdinalIgnoreCase);
+        if (idx < 0)
+        {
+            return input;
+        }
+
+        var rest = input[(idx + "session=".Length)..];
+        var amp = rest.IndexOf('&');
+        return amp >= 0 ? rest[..amp] : rest;
+    }
+
+    public void Dispose()
+    {
+        Sync.StateChanged -= OnStateChanged;
+    }
+}

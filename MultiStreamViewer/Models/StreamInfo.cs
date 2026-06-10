@@ -50,12 +50,25 @@ public class StreamInfo
             ? $"{Platform} chat"
             : $"{Platform} chat: {StreamerName}";
 
+    /// <summary>
+    /// Canonical platform watch page, opened in a standalone window by the
+    /// "pop out" control so the stream keeps playing when the app tab is hidden.
+    /// </summary>
+    public string PopoutUrl =>
+        Platform switch
+        {
+            StreamPlatform.Twitch => $"https://www.twitch.tv/{StreamerName}",
+            StreamPlatform.YouTube => $"https://www.youtube.com/watch?v={StreamerName}",
+            StreamPlatform.Kick => $"https://kick.com/{StreamerName}",
+            _ => EmbedUrl,
+        };
+
     public string? VideoPermissions =>
         Platform switch
         {
             StreamPlatform.Twitch => "autoplay; encrypted-media; fullscreen; picture-in-picture",
             StreamPlatform.YouTube =>
-                "accelerometer *; clipboard-write *; encrypted-media *; gyroscope *; picture-in-picture *; web-share *;",
+                "autoplay *; accelerometer *; clipboard-write *; encrypted-media *; gyroscope *; picture-in-picture *; web-share *;",
             StreamPlatform.Kick => null,
             _ => null,
         };
@@ -82,6 +95,19 @@ public class StreamInfo
     public StreamInfo() { }
 
     public StreamInfo(StreamPlatform platform, string streamerName)
+    {
+        Platform = platform;
+        StreamerName = streamerName;
+        EmbedUrl = GetEmbedUrl(platform, streamerName);
+        ChatUrl = GetChatUrl(platform, streamerName);
+    }
+
+    /// <summary>
+    /// Re-points this stream at a different platform/channel in place, keeping
+    /// the same <see cref="Id"/> so the grid position and component instance
+    /// are preserved when a stream is "replaced" from the card UI.
+    /// </summary>
+    public void Update(StreamPlatform platform, string streamerName)
     {
         Platform = platform;
         StreamerName = streamerName;
@@ -121,9 +147,9 @@ public class StreamInfo
         return platform switch
         {
             StreamPlatform.Twitch => GetTwitchEmbedUrl(streamerName),
-            StreamPlatform.YouTube => $"https://www.youtube.com/embed/{streamerName}?rel=0",
+            StreamPlatform.YouTube => $"https://www.youtube.com/embed/{streamerName}?rel=0&enablejsapi=1",
             StreamPlatform.Kick =>
-                $"https://player.kick.com/{streamerName}?autoplay=false&muted=false",
+                $"https://player.kick.com/{streamerName}?autoplay=false&muted=true",
             _ => string.Empty,
         };
     }

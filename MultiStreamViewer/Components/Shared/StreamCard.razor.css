@@ -60,4 +60,109 @@
     width: 100%;
     display: flex;
     flex-direction: column;
+    /* Positioning context for the overlay controls */
+    position: relative;
+}
+
+/* Per-card overlay controls (solo / pop-out / replace / remove).
+   Top-left is the one spot clear of every player's *functional* controls
+   (their control bars sit at the bottom; YouTube's buttons are top-right).
+   Kept subtle at rest and brightened when pointed at. We can't hover-reveal
+   over the video: a cross-origin iframe swallows the parent's :hover, so the
+   controls must stay present to remain reachable. */
+.card-controls {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 20;
+    opacity: 0.4;
+    transition: opacity 0.15s ease-in-out;
+}
+
+/* Pointing at the controls (a parent-document element above the iframe) does
+   register hover, so they brighten on approach. */
+.stream-container:hover .card-controls,
+.card-controls:hover {
+    opacity: 1;
+}
+
+/* Stronger marker on the stream you're currently listening to. */
+.card-controls.audible {
+    opacity: 0.85;
+}
+
+/* Flip card: front = live embed, back = replace form */
+.flip-card {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    perspective: 1200px;
+}
+
+.flip-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s;
+    transform-style: preserve-3d;
+}
+
+.flip-card.flipped .flip-inner {
+    transform: rotateY(180deg);
+}
+
+.flip-front,
+.flip-back {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+.flip-front {
+    flex-direction: column;
+}
+
+.flip-front .stream-content {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+}
+
+/* Don't let the hidden face capture clicks over the video */
+.flip-back {
+    transform: rotateY(180deg);
+    align-items: center;
+    justify-content: center;
+    background: var(--neutral-layer-2, #1b1b1f);
+    pointer-events: none;
+}
+
+.flip-card.flipped .flip-back {
+    pointer-events: auto;
+}
+
+.flip-card.flipped .flip-front {
+    pointer-events: none;
+}
+
+.replace-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: min(90%, 360px);
+    padding: 16px;
+}
+
+.replace-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
 }

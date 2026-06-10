@@ -7,7 +7,7 @@
     {
         @foreach (var stream in StreamService.Streams)
         {
-            <div class="stack-item">
+            <div class="stack-item" @key="stream.Id">
                 <StreamCard Stream="stream" />
             </div>
         }

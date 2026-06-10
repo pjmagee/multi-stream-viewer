@@ -72,3 +72,28 @@ export function disposeTwitchEmbed(elementId) {
         host.innerHTML = "";
     }
 }
+
+export function setTwitchMuted(elementId, muted) {
+    const embed = activeEmbeds.get(elementId);
+    if (!embed) {
+        return;
+    }
+
+    try {
+        const player = embed.getPlayer();
+        if (!player) {
+            return;
+        }
+
+        player.setMuted(muted);
+
+        if (!muted) {
+            player.setVolume(1.0);
+            if (typeof player.play === "function") {
+                player.play();
+            }
+        }
+    } catch {
+        // Player not ready yet; the caller re-applies after the embed initializes.
+    }
+}
