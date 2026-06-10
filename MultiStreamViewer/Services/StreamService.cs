@@ -11,15 +11,8 @@ public class StreamService
     public ChatPanePosition ChatPosition { get; set; } = ChatPanePosition.Right;
     public bool IsChatPaneVisible { get; set; } = false;
 
-    /// <summary>
-    /// Id of the stream currently allowed to play audio ("solo"), or null when
-    /// every stream is muted. At most one stream is audible at a time.
-    /// </summary>
-    public string? ActiveAudioStreamId { get; private set; }
-
     public event Action? StreamsChanged;
     public event Action? ChatSettingsChanged;
-    public event Action? AudioSettingsChanged;
     public event Action? ManageDialogRequested;
 
     public StreamService(NavigationManager navigationManager)
@@ -43,7 +36,6 @@ public class StreamService
         if (stream != null)
         {
             Streams.Remove(stream);
-            ClearSoloIfMatches(streamId);
             StreamsChanged?.Invoke();
         }
     }
@@ -57,35 +49,8 @@ public class StreamService
         if (stream != null)
         {
             stream.Update(platform, streamerName);
-            // The channel changed underneath us, so reset its audio to muted.
-            ClearSoloIfMatches(streamId);
             StreamsChanged?.Invoke();
         }
-    }
-
-    /// <summary>
-    /// Makes the given stream the only audible one. Toggling the stream that is
-    /// already soloed mutes everything.
-    /// </summary>
-    public void ToggleSoloAudio(string streamId)
-    {
-        SetSoloAudio(string.Equals(ActiveAudioStreamId, streamId, StringComparison.Ordinal)
-            ? null
-            : streamId);
-    }
-
-    /// <summary>
-    /// Sets the soloed stream directly (null mutes all). Used by session sync.
-    /// </summary>
-    public void SetSoloAudio(string? streamId)
-    {
-        if (string.Equals(ActiveAudioStreamId, streamId, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        ActiveAudioStreamId = streamId;
-        AudioSettingsChanged?.Invoke();
     }
 
     /// <summary>
@@ -124,15 +89,6 @@ public class StreamService
         }
 
         StreamsChanged?.Invoke();
-    }
-
-    private void ClearSoloIfMatches(string streamId)
-    {
-        if (string.Equals(ActiveAudioStreamId, streamId, StringComparison.Ordinal))
-        {
-            ActiveAudioStreamId = null;
-            AudioSettingsChanged?.Invoke();
-        }
     }
 
     public void SetChatMode(ChatDisplayMode mode)
@@ -199,7 +155,6 @@ public class StreamService
     public void ClearAllStreams()
     {
         Streams.Clear();
-        ActiveAudioStreamId = null;
         StreamsChanged?.Invoke();
     }
 

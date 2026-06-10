@@ -6,12 +6,17 @@ namespace MultiStreamViewer.Services;
 
 /// <summary>
 /// "Watch together" session sync. Wraps the PeerJS module and keeps the local
-/// <see cref="StreamService"/> in lockstep with every participant: any local
-/// add/remove/replace/solo is broadcast as a full snapshot, and incoming
+/// <see cref="StreamService"/> stream list in lockstep with every participant:
+/// any local add/remove/replace is broadcast as a snapshot, and incoming
 /// snapshots are applied locally (echo-suppressed so they don't bounce back).
+/// Per-stream audio/playback is intentionally NOT synced — each viewer controls
+/// their own. The active session is persisted to localStorage so a page refresh
+/// rejoins the same room instead of dropping out.
 /// </summary>
 public class SyncService : IAsyncDisposable
 {
+    private const string SessionStorageKey = "msv-session";
+
     private readonly StreamService _streams;
     private readonly IJSRuntime _js;
 
@@ -32,16 +37,16 @@ public class SyncService : IAsyncDisposable
         _streams = streams;
         _js = js;
         _streams.StreamsChanged += OnLocalChanged;
-        _streams.AudioSettingsChanged += OnLocalChanged;
     }
 
-    public async Task StartSessionAsync()
+    public async Task StartSessionAsync(string? preferredId = null)
     {
         await EnsureModuleAsync();
         IsHost = true;
         LastError = null;
-        SessionId = await _module!.InvokeAsync<string>("startSession", _ref);
+        SessionId = await _module!.InvokeAsync<string>("startSession", _ref, preferredId);
         IsConnected = true;
+        await PersistSessionAsync();
         StateChanged?.Invoke();
     }
 
@@ -56,10 +61,61 @@ public class SyncService : IAsyncDisposable
         IsHost = false;
         LastError = null;
         SessionId = hostId.Trim();
+        await PersistSessionAsync();
         // IsConnected flips true once the data channel to the host actually
         // opens (reported via OnPeerCountChanged), not just when dialing starts.
         await _module!.InvokeAsync<string>("joinSession", SessionId, _ref);
         StateChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Re-establishes a session saved in localStorage (called on page load).
+    /// Hosts reclaim their previous id; guests redial the same host.
+    /// </summary>
+    public async Task TryRestoreSessionAsync()
+    {
+        if (IsConnected)
+        {
+            return;
+        }
+
+        StoredSession? stored;
+        try
+        {
+            var raw = await _js.InvokeAsync<string?>("localStorage.getItem", SessionStorageKey);
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                return;
+            }
+
+            stored = JsonSerializer.Deserialize<StoredSession>(raw);
+        }
+        catch
+        {
+            return;
+        }
+
+        if (stored is null || string.IsNullOrWhiteSpace(stored.Id))
+        {
+            await ClearStoredSessionAsync();
+            return;
+        }
+
+        try
+        {
+            if (stored.Host)
+            {
+                await StartSessionAsync(stored.Id);
+            }
+            else
+            {
+                await JoinSessionAsync(stored.Id);
+            }
+        }
+        catch
+        {
+            await ClearStoredSessionAsync();
+        }
     }
 
     public async Task LeaveSessionAsync()
@@ -69,10 +125,13 @@ public class SyncService : IAsyncDisposable
             try { await _module.InvokeVoidAsync("leave"); } catch { /* tearing down */ }
         }
 
+        await ClearStoredSessionAsync();
+
         IsConnected = false;
         IsHost = false;
         SessionId = null;
         PeerCount = 0;
+        LastError = null;
         StateChanged?.Invoke();
     }
 
@@ -108,7 +167,6 @@ public class SyncService : IAsyncDisposable
                 .ToList();
 
             _streams.ApplySyncedStreams(incoming);
-            _streams.SetSoloAudio(snapshot.ActiveAudioStreamId);
         }
         finally
         {
@@ -135,6 +193,20 @@ public class SyncService : IAsyncDisposable
     public void OnSyncError(string error)
     {
         LastError = error;
+        StateChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// The guest exhausted its reconnection attempts — the room is gone. Drop the
+    /// persisted session so we stop trying to rejoin a dead room on each refresh.
+    /// </summary>
+    [JSInvokable]
+    public void OnReconnectFailed()
+    {
+        IsConnected = false;
+        SessionId = null;
+        LastError = "Session ended";
+        _ = ClearStoredSessionAsync();
         StateChanged?.Invoke();
     }
 
@@ -166,16 +238,37 @@ public class SyncService : IAsyncDisposable
         var snapshot = new SyncSnapshot(
             _streams.Streams
                 .Select(s => new SyncStream(s.Id, s.Platform.ToString(), s.StreamerName))
-                .ToList(),
-            _streams.ActiveAudioStreamId);
+                .ToList());
 
         return JsonSerializer.Serialize(snapshot);
+    }
+
+    private async Task PersistSessionAsync()
+    {
+        if (string.IsNullOrWhiteSpace(SessionId))
+        {
+            return;
+        }
+
+        try
+        {
+            var json = JsonSerializer.Serialize(new StoredSession(SessionId, IsHost));
+            await _js.InvokeVoidAsync("localStorage.setItem", SessionStorageKey, json);
+        }
+        catch
+        {
+            // localStorage may be unavailable (private mode); sync still works for this tab.
+        }
+    }
+
+    private async Task ClearStoredSessionAsync()
+    {
+        try { await _js.InvokeVoidAsync("localStorage.removeItem", SessionStorageKey); } catch { }
     }
 
     public async ValueTask DisposeAsync()
     {
         _streams.StreamsChanged -= OnLocalChanged;
-        _streams.AudioSettingsChanged -= OnLocalChanged;
 
         if (_module is not null)
         {
@@ -193,6 +286,7 @@ public class SyncService : IAsyncDisposable
         _ref?.Dispose();
     }
 
-    private sealed record SyncSnapshot(List<SyncStream> Streams, string? ActiveAudioStreamId);
+    private sealed record SyncSnapshot(List<SyncStream> Streams);
     private sealed record SyncStream(string Id, string Platform, string Name);
+    private sealed record StoredSession(string Id, bool Host);
 }

@@ -68,7 +68,7 @@ public class StreamInfo
         {
             StreamPlatform.Twitch => "autoplay; encrypted-media; fullscreen; picture-in-picture",
             StreamPlatform.YouTube =>
-                "autoplay *; accelerometer *; clipboard-write *; encrypted-media *; gyroscope *; picture-in-picture *; web-share *;",
+                "accelerometer *; clipboard-write *; encrypted-media *; gyroscope *; picture-in-picture *; web-share *;",
             StreamPlatform.Kick => null,
             _ => null,
         };
@@ -147,9 +147,9 @@ public class StreamInfo
         return platform switch
         {
             StreamPlatform.Twitch => GetTwitchEmbedUrl(streamerName),
-            StreamPlatform.YouTube => $"https://www.youtube.com/embed/{streamerName}?rel=0&enablejsapi=1",
+            StreamPlatform.YouTube => $"https://www.youtube.com/embed/{streamerName}?rel=0",
             StreamPlatform.Kick =>
-                $"https://player.kick.com/{streamerName}?autoplay=false&muted=true",
+                $"https://player.kick.com/{streamerName}?autoplay=false&muted=false",
             _ => string.Empty,
         };
     }

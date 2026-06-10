@@ -5,11 +5,7 @@
 
 <div class="stream-container stream-card">
 
-    <div class="card-controls @(IsAudible ? "audible" : "")">
-        <FluentButton Appearance="@(IsAudible ? Appearance.Accent : Appearance.Stealth)"
-                      IconStart="@GetAudioIcon()"
-                      OnClick="ToggleSolo"
-                      Title="@(IsAudible ? "You're listening to this — click to mute" : "Listen to this stream (mutes the others)")" />
+    <div class="card-controls">
         <FluentButton Appearance="Appearance.Stealth"
                       IconStart="@(new Icons.Regular.Size16.Open())"
                       OnClick="PopOut"
@@ -173,20 +169,11 @@
     private string _editInput = string.Empty;
     private string? _replaceError;
 
-    // Tracks the mute state currently applied to the embed so we only call into
-    // JS (and only reload Kick) when the audible state actually changes.
-    private bool _appliedAudible;
-
-    private bool IsAudible => StreamService.ActiveAudioStreamId == Stream.Id;
-
     private string TwitchEmbedHostId => $"embed_{Stream.Id.Replace("-", string.Empty, StringComparison.Ordinal)}";
-
-    private string EmbedIframeId => $"embed_{Stream.StreamerName}";
 
     protected override void OnInitialized()
     {
         StreamService.ChatSettingsChanged += OnChatSettingsChanged;
-        StreamService.AudioSettingsChanged += OnAudioSettingsChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -204,12 +191,7 @@
                 Stream.TwitchParentHosts);
 
             _lastInitializedTwitchChannel = Stream.StreamerName;
-
-            // Fresh embed starts muted; re-apply the current solo state to it.
-            _appliedAudible = false;
         }
-
-        await ApplyAudioAsync();
     }
 
     private void OnChatSettingsChanged()
@@ -217,69 +199,10 @@
         InvokeAsync(StateHasChanged);
     }
 
-    private void OnAudioSettingsChanged()
-    {
-        InvokeAsync(async () =>
-        {
-            StateHasChanged();
-            await ApplyAudioAsync();
-        });
-    }
-
-    private Icon GetAudioIcon() => IsAudible
-        ? new Icons.Regular.Size16.Speaker2()
-        : new Icons.Regular.Size16.SpeakerMute();
-
-    private void ToggleSolo()
-    {
-        StreamService.ToggleSoloAudio(Stream.Id);
-    }
-
     private async Task PopOut()
     {
         _audioModule ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/stream-audio.js");
         await _audioModule.InvokeVoidAsync("popOutStream", Stream.PopoutUrl, Stream.Id);
-    }
-
-    private async Task ApplyAudioAsync()
-    {
-        var desired = IsAudible;
-        if (_appliedAudible == desired)
-        {
-            return;
-        }
-
-        try
-        {
-            if (Stream.IsTwitch)
-            {
-                if (_twitchEmbedModule is null)
-                {
-                    return; // Embed not initialized yet; OnAfterRender re-applies once it is.
-                }
-
-                await _twitchEmbedModule.InvokeVoidAsync("setTwitchMuted", TwitchEmbedHostId, !desired);
-            }
-            else
-            {
-                _audioModule ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/stream-audio.js");
-
-                var function = Stream.Platform switch
-                {
-                    StreamPlatform.YouTube => "setYouTubeMuted",
-                    StreamPlatform.Kick => "setKickMuted",
-                    _ => "setIframeMuted",
-                };
-
-                await _audioModule.InvokeVoidAsync(function, EmbedIframeId, !desired);
-            }
-
-            _appliedAudible = desired;
-        }
-        catch
-        {
-            // Ignore transient interop failures (e.g. player not ready).
-        }
     }
 
     private void Remove()
@@ -342,7 +265,6 @@
     public void Dispose()
     {
         StreamService.ChatSettingsChanged -= OnChatSettingsChanged;
-        StreamService.AudioSettingsChanged -= OnAudioSettingsChanged;
     }
 
     public async ValueTask DisposeAsync()

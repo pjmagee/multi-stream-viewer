@@ -91,11 +91,6 @@
     opacity: 1;
 }
 
-/* Stronger marker on the stream you're currently listening to. */
-.card-controls.audible {
-    opacity: 0.85;
-}
-
 /* Flip card: front = live embed, back = replace form */
 .flip-card {
     position: relative;

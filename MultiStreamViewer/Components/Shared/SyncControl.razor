@@ -92,15 +92,24 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender
-            && Nav.Uri.Contains("session=", StringComparison.OrdinalIgnoreCase)
-            && !Sync.IsConnected)
+        if (!firstRender || Sync.IsConnected)
         {
+            return;
+        }
+
+        if (Nav.Uri.Contains("session=", StringComparison.OrdinalIgnoreCase))
+        {
+            // Explicit invite link takes precedence over any saved session.
             var sessionId = ExtractSession(Nav.Uri);
             if (!string.IsNullOrWhiteSpace(sessionId))
             {
                 await Sync.JoinSessionAsync(sessionId);
             }
+        }
+        else
+        {
+            // Rejoin a session left in localStorage (survives a page refresh).
+            await Sync.TryRestoreSessionAsync();
         }
     }
 
