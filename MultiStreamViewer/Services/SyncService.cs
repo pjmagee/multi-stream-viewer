@@ -5,13 +5,14 @@ using MultiStreamViewer.Models;
 namespace MultiStreamViewer.Services;
 
 /// <summary>
-/// "Watch together" session sync. Wraps the PeerJS module and keeps the local
-/// <see cref="StreamService"/> stream list in lockstep with every participant:
-/// any local add/remove/replace is broadcast as a snapshot, and incoming
-/// snapshots are applied locally (echo-suppressed so they don't bounce back).
-/// Per-stream audio/playback is intentionally NOT synced — each viewer controls
-/// their own. The active session is persisted to localStorage so a page refresh
-/// rejoins the same room instead of dropping out.
+/// "Watch together" session sync. Wraps the PeerJS module and keeps every
+/// participant in lockstep:
+///  - the stream set (add/remove/replace) is broadcast as a snapshot, and
+///  - YouTube playback (play/pause/seek) is synced via the IFrame Player API,
+///    collaboratively — anyone's action applies to everyone, and the host emits
+///    a periodic drift-correction heartbeat.
+/// Per-stream audio/volume is intentionally NOT synced. The active session is
+/// persisted to localStorage so a page refresh rejoins the same room.
 /// </summary>
 public class SyncService : IAsyncDisposable
 {
@@ -21,7 +22,9 @@ public class SyncService : IAsyncDisposable
     private readonly IJSRuntime _js;
 
     private IJSObjectReference? _module;
+    private IJSObjectReference? _ytModule;
     private DotNetObjectReference<SyncService>? _ref;
+    private CancellationTokenSource? _heartbeatCts;
     private bool _applyingRemote;
 
     public bool IsConnected { get; private set; }
@@ -36,7 +39,7 @@ public class SyncService : IAsyncDisposable
     {
         _streams = streams;
         _js = js;
-        _streams.StreamsChanged += OnLocalChanged;
+        _streams.StreamsChanged += OnLocalStreamsChanged;
     }
 
     public async Task StartSessionAsync(string? preferredId = null)
@@ -47,6 +50,7 @@ public class SyncService : IAsyncDisposable
         SessionId = await _module!.InvokeAsync<string>("startSession", _ref, preferredId);
         IsConnected = true;
         await PersistSessionAsync();
+        StartHeartbeat();
         StateChanged?.Invoke();
     }
 
@@ -120,6 +124,8 @@ public class SyncService : IAsyncDisposable
 
     public async Task LeaveSessionAsync()
     {
+        StopHeartbeat();
+
         if (_module is not null)
         {
             try { await _module.InvokeVoidAsync("leave"); } catch { /* tearing down */ }
@@ -135,42 +141,64 @@ public class SyncService : IAsyncDisposable
         StateChanged?.Invoke();
     }
 
+    /// <summary>Attaches a YouTube IFrame player so its playback can be synced.</summary>
+    public async Task RegisterYouTubeAsync(string elementId, string streamId)
+    {
+        await EnsureYtModuleAsync();
+        try { await _ytModule!.InvokeVoidAsync("register", elementId, streamId, _ref); } catch { }
+    }
+
+    public async Task UnregisterYouTubeAsync(string elementId)
+    {
+        if (_ytModule is not null)
+        {
+            try { await _ytModule.InvokeVoidAsync("unregister", elementId); } catch { }
+        }
+    }
+
     [JSInvokable]
     public string GetCurrentSnapshot() => BuildSnapshotJson();
 
     [JSInvokable]
-    public void OnSnapshotReceived(string json)
+    public async Task OnMessageReceived(string json)
     {
-        SyncSnapshot? snapshot;
+        string? type;
         try
         {
-            snapshot = JsonSerializer.Deserialize<SyncSnapshot>(json);
+            using var doc = JsonDocument.Parse(json);
+            type = doc.RootElement.TryGetProperty("Type", out var t) ? t.GetString() : null;
         }
         catch
         {
             return;
         }
 
-        if (snapshot is null)
+        if (type == "yt")
+        {
+            await ApplyYouTubeMessageAsync(json);
+        }
+        else
+        {
+            ApplyStreamsMessage(json);
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnYouTubePlayback(string streamId, bool playing, double time, long version)
+    {
+        if (!IsConnected || _module is null)
         {
             return;
         }
 
-        _applyingRemote = true;
         try
         {
-            var incoming = snapshot.Streams
-                .Select(s => (
-                    s.Id,
-                    Enum.TryParse<StreamPlatform>(s.Platform, out var platform) ? platform : StreamPlatform.Twitch,
-                    s.Name))
-                .ToList();
-
-            _streams.ApplySyncedStreams(incoming);
+            var json = JsonSerializer.Serialize(new YtMessage("yt", streamId, playing, time, version));
+            await _module.InvokeVoidAsync("broadcast", json);
         }
-        finally
+        catch
         {
-            _applyingRemote = false;
+            // Connection mid-teardown; the next event re-syncs.
         }
     }
 
@@ -210,7 +238,51 @@ public class SyncService : IAsyncDisposable
         StateChanged?.Invoke();
     }
 
-    private async void OnLocalChanged()
+    private async Task ApplyYouTubeMessageAsync(string json)
+    {
+        YtMessage? message;
+        try { message = JsonSerializer.Deserialize<YtMessage>(json); } catch { return; }
+        if (message is null)
+        {
+            return;
+        }
+
+        await EnsureYtModuleAsync();
+        try
+        {
+            await _ytModule!.InvokeVoidAsync("applyMessage", message.StreamId, message.Playing, message.Time, message.Version);
+        }
+        catch { }
+    }
+
+    private void ApplyStreamsMessage(string json)
+    {
+        StreamsMessage? message;
+        try { message = JsonSerializer.Deserialize<StreamsMessage>(json); } catch { return; }
+        if (message is null)
+        {
+            return;
+        }
+
+        _applyingRemote = true;
+        try
+        {
+            var incoming = message.Streams
+                .Select(s => (
+                    s.Id,
+                    Enum.TryParse<StreamPlatform>(s.Platform, out var platform) ? platform : StreamPlatform.Twitch,
+                    s.Name))
+                .ToList();
+
+            _streams.ApplySyncedStreams(incoming);
+        }
+        finally
+        {
+            _applyingRemote = false;
+        }
+    }
+
+    private async void OnLocalStreamsChanged()
     {
         if (_applyingRemote || !IsConnected || _module is null)
         {
@@ -227,20 +299,70 @@ public class SyncService : IAsyncDisposable
         }
     }
 
+    private void StartHeartbeat()
+    {
+        StopHeartbeat();
+        _heartbeatCts = new CancellationTokenSource();
+        _ = HeartbeatLoopAsync(_heartbeatCts.Token);
+    }
+
+    private void StopHeartbeat()
+    {
+        _heartbeatCts?.Cancel();
+        _heartbeatCts?.Dispose();
+        _heartbeatCts = null;
+    }
+
+    // Host-only: periodically broadcast each YouTube player's position so guests
+    // self-correct drift and late-joiners snap to the right spot.
+    private async Task HeartbeatLoopAsync(CancellationToken ct)
+    {
+        try
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(3));
+            while (await timer.WaitForNextTickAsync(ct))
+            {
+                if (!IsHost || !IsConnected || _ytModule is null || _module is null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    var states = await _ytModule.InvokeAsync<YtState[]>("getStates");
+                    foreach (var state in states)
+                    {
+                        var json = JsonSerializer.Serialize(new YtMessage("yt", state.StreamId, state.Playing, state.Time, state.Version));
+                        await _module.InvokeVoidAsync("broadcast", json);
+                    }
+                }
+                catch { }
+            }
+        }
+        catch (OperationCanceledException) { }
+    }
+
     private async Task EnsureModuleAsync()
     {
         _module ??= await _js.InvokeAsync<IJSObjectReference>("import", "./js/peer-sync.js");
         _ref ??= DotNetObjectReference.Create(this);
     }
 
+    private async Task EnsureYtModuleAsync()
+    {
+        _ytModule ??= await _js.InvokeAsync<IJSObjectReference>("import", "./js/youtube-sync.js");
+        _ref ??= DotNetObjectReference.Create(this);
+    }
+
     private string BuildSnapshotJson()
     {
-        var snapshot = new SyncSnapshot(
+        var message = new StreamsMessage(
+            "streams",
             _streams.Streams
                 .Select(s => new SyncStream(s.Id, s.Platform.ToString(), s.StreamerName))
                 .ToList());
 
-        return JsonSerializer.Serialize(snapshot);
+        return JsonSerializer.Serialize(message);
     }
 
     private async Task PersistSessionAsync()
@@ -268,7 +390,8 @@ public class SyncService : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        _streams.StreamsChanged -= OnLocalChanged;
+        _streams.StreamsChanged -= OnLocalStreamsChanged;
+        StopHeartbeat();
 
         if (_module is not null)
         {
@@ -277,16 +400,20 @@ public class SyncService : IAsyncDisposable
                 await _module.InvokeVoidAsync("leave");
                 await _module.DisposeAsync();
             }
-            catch
-            {
-                // Ignore teardown failures.
-            }
+            catch { /* Ignore teardown failures. */ }
+        }
+
+        if (_ytModule is not null)
+        {
+            try { await _ytModule.DisposeAsync(); } catch { }
         }
 
         _ref?.Dispose();
     }
 
-    private sealed record SyncSnapshot(List<SyncStream> Streams);
+    private sealed record StreamsMessage(string Type, List<SyncStream> Streams);
     private sealed record SyncStream(string Id, string Platform, string Name);
+    private sealed record YtMessage(string Type, string StreamId, bool Playing, double Time, long Version);
+    private sealed record YtState(string StreamId, bool Playing, double Time, long Version);
     private sealed record StoredSession(string Id, bool Host);
 }

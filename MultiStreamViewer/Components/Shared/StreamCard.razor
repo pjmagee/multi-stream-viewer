@@ -1,4 +1,5 @@
 @inject StreamService StreamService
+@inject SyncService SyncService
 @inject IJSRuntime JsRuntime
 @implements IDisposable
 @implements IAsyncDisposable
@@ -168,8 +169,11 @@
     private bool _isFlipped;
     private string _editInput = string.Empty;
     private string? _replaceError;
+    private string? _registeredYouTubeElementId;
 
     private string TwitchEmbedHostId => $"embed_{Stream.Id.Replace("-", string.Empty, StringComparison.Ordinal)}";
+
+    private string EmbedIframeId => $"embed_{Stream.StreamerName}";
 
     protected override void OnInitialized()
     {
@@ -191,6 +195,26 @@
                 Stream.TwitchParentHosts);
 
             _lastInitializedTwitchChannel = Stream.StreamerName;
+        }
+
+        // Attach/detach the YouTube IFrame player used for watch-together playback sync.
+        if (Stream.IsYouTube)
+        {
+            if (!string.Equals(_registeredYouTubeElementId, EmbedIframeId, StringComparison.Ordinal))
+            {
+                if (_registeredYouTubeElementId is not null)
+                {
+                    await SyncService.UnregisterYouTubeAsync(_registeredYouTubeElementId);
+                }
+
+                await SyncService.RegisterYouTubeAsync(EmbedIframeId, Stream.Id);
+                _registeredYouTubeElementId = EmbedIframeId;
+            }
+        }
+        else if (_registeredYouTubeElementId is not null)
+        {
+            await SyncService.UnregisterYouTubeAsync(_registeredYouTubeElementId);
+            _registeredYouTubeElementId = null;
         }
     }
 
@@ -269,6 +293,11 @@
 
     public async ValueTask DisposeAsync()
     {
+        if (_registeredYouTubeElementId is not null)
+        {
+            try { await SyncService.UnregisterYouTubeAsync(_registeredYouTubeElementId); } catch { }
+        }
+
         if (_twitchEmbedModule is not null)
         {
             try

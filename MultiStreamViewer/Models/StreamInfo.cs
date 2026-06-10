@@ -68,7 +68,7 @@ public class StreamInfo
         {
             StreamPlatform.Twitch => "autoplay; encrypted-media; fullscreen; picture-in-picture",
             StreamPlatform.YouTube =>
-                "accelerometer *; clipboard-write *; encrypted-media *; gyroscope *; picture-in-picture *; web-share *;",
+                "autoplay *; accelerometer *; clipboard-write *; encrypted-media *; gyroscope *; picture-in-picture *; web-share *;",
             StreamPlatform.Kick => null,
             _ => null,
         };
@@ -147,7 +147,8 @@ public class StreamInfo
         return platform switch
         {
             StreamPlatform.Twitch => GetTwitchEmbedUrl(streamerName),
-            StreamPlatform.YouTube => $"https://www.youtube.com/embed/{streamerName}?rel=0",
+            // enablejsapi lets the IFrame Player API drive play/pause/seek for watch-together sync.
+            StreamPlatform.YouTube => $"https://www.youtube.com/embed/{streamerName}?rel=0&enablejsapi=1",
             StreamPlatform.Kick =>
                 $"https://player.kick.com/{streamerName}?autoplay=false&muted=false",
             _ => string.Empty,

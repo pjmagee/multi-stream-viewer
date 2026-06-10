@@ -184,7 +184,7 @@ function handleData(sourceConn, data) {
     }
 
     if (dotNet) {
-        dotNet.invokeMethodAsync("OnSnapshotReceived", json);
+        dotNet.invokeMethodAsync("OnMessageReceived", json);
     }
 }
 
