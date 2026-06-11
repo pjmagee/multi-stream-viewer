@@ -54,6 +54,30 @@ public class SyncService : IAsyncDisposable
         StateChanged?.Invoke();
     }
 
+    /// <summary>
+    /// Checks whether a saved session's room is still reachable, without joining
+    /// it. Used by the "relaunch from history" flow to decide between rejoining a
+    /// live room and offering to re-create a dead one. Returns false if the room
+    /// is gone or the check times out.
+    /// </summary>
+    public async Task<bool> ProbeSessionAsync(string hostId)
+    {
+        if (string.IsNullOrWhiteSpace(hostId))
+        {
+            return false;
+        }
+
+        await EnsureModuleAsync();
+        try
+        {
+            return await _module!.InvokeAsync<bool>("probeHost", hostId.Trim(), 5000);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public async Task JoinSessionAsync(string hostId)
     {
         if (string.IsNullOrWhiteSpace(hostId))

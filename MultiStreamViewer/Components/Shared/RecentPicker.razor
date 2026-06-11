@@ -1,0 +1,350 @@
+@inject HistoryService History
+@inject SyncService Sync
+@inject IDialogService DialogService
+@inject IToastService ToastService
+@implements IDisposable
+
+@if (!_loaded)
+{
+    <div class="recent-loading">
+        <FluentProgressRing />
+    </div>
+}
+else if (History.Sessions.Count == 0 && History.StreamSets.Count == 0)
+{
+    @if (Embedded)
+    {
+        <div class="empty-content">
+            <FluentIcon Value="@(new Icons.Regular.Size48.VideoClip())" Color="Color.Disabled" />
+            <FluentLabel Typo="Typography.H5">No streams added yet</FluentLabel>
+            <FluentLabel>Add your first stream using the form above to get started!</FluentLabel>
+        </div>
+    }
+    else
+    {
+        <FluentLabel Typo="Typography.Body" Color="Color.Disabled">
+            Nothing here yet — sessions and stream sets you open will appear here.
+        </FluentLabel>
+    }
+}
+else
+{
+    <div class="recent-picker">
+        @if (Embedded)
+        {
+            <div class="recent-heading">
+                <FluentLabel Typo="Typography.H5">Jump back in</FluentLabel>
+            </div>
+        }
+
+        @if (History.Sessions.Count > 0)
+        {
+            <section class="recent-group">
+                <div class="recent-group-title">
+                    <FluentIcon Value="@(new Icons.Regular.Size20.People())" Color="Color.Accent" />
+                    <FluentLabel Typo="Typography.Subject">Recent sessions</FluentLabel>
+                </div>
+
+                @foreach (var session in History.Sessions)
+                {
+                    <div class="recent-row" @key="session.Id">
+                        <div class="recent-platform-icons">
+                            @if (session.Streams.Count == 0)
+                            {
+                                <FluentIcon Value="@(new Icons.Regular.Size20.People())" Color="Color.Disabled" />
+                            }
+                            else
+                            {
+                                @foreach (var reference in session.Streams.Take(4))
+                                {
+                                    <FluentIcon Value="@PlatformIcon(reference.Platform)" />
+                                }
+                            }
+                        </div>
+
+                        <div class="recent-meta">
+                            @if (_editingId == session.Id)
+                            {
+                                <FluentTextField @bind-Value="_editValue" Immediate="true"
+                                                 Style="width: 100%;"
+                                                 @onkeyup="@(e => HandleRenameKey(e, () => CommitRenameSessionAsync(session)))" />
+                            }
+                            else
+                            {
+                                <div class="recent-name">@SessionLabel(session)</div>
+                                <div class="recent-sub">
+                                    @session.Role · @StreamSummary(session.Streams) · @Relative(session.LastUsed)
+                                </div>
+                            }
+                        </div>
+
+                        <div class="recent-actions">
+                            @if (_editingId == session.Id)
+                            {
+                                <FluentButton IconStart="@(new Icons.Regular.Size16.Checkmark())"
+                                              Appearance="Appearance.Accent" Size="ButtonSize.Small"
+                                              OnClick="() => CommitRenameSessionAsync(session)" Title="Save name" />
+                                <FluentButton IconStart="@(new Icons.Regular.Size16.Dismiss())"
+                                              Appearance="Appearance.Stealth" Size="ButtonSize.Small"
+                                              OnClick="CancelRename" Title="Cancel" />
+                            }
+                            else
+                            {
+                                <FluentButton IconStart="@(new Icons.Regular.Size16.People())"
+                                              Appearance="Appearance.Accent" Size="ButtonSize.Small"
+                                              OnClick="() => RejoinSessionAsync(session)"
+                                              Disabled="@_busy">
+                                    Rejoin
+                                </FluentButton>
+                                <FluentButton IconStart="@PinIcon(session.Pinned)"
+                                              Appearance="Appearance.Stealth" Size="ButtonSize.Small"
+                                              OnClick="() => History.ToggleSessionPinAsync(session.Id)"
+                                              Title="@(session.Pinned ? "Unpin" : "Pin")" />
+                                <FluentButton IconStart="@(new Icons.Regular.Size16.Rename())"
+                                              Appearance="Appearance.Stealth" Size="ButtonSize.Small"
+                                              OnClick="() => BeginRename(session.Id, SessionLabel(session))" Title="Rename" />
+                                <FluentButton IconStart="@(new Icons.Regular.Size16.Delete())"
+                                              Appearance="Appearance.Stealth" Size="ButtonSize.Small"
+                                              OnClick="() => History.RemoveSessionAsync(session.Id)" Title="Remove" />
+                            }
+                        </div>
+                    </div>
+                }
+            </section>
+        }
+
+        @if (History.StreamSets.Count > 0)
+        {
+            <section class="recent-group">
+                <div class="recent-group-title">
+                    <FluentIcon Value="@(new Icons.Regular.Size20.History())" Color="Color.Accent" />
+                    <FluentLabel Typo="Typography.Subject">Recent stream sets</FluentLabel>
+                </div>
+
+                @foreach (var set in History.StreamSets)
+                {
+                    <div class="recent-row" @key="set.Id">
+                        <div class="recent-platform-icons">
+                            @foreach (var reference in set.Streams.Take(4))
+                            {
+                                <FluentIcon Value="@PlatformIcon(reference.Platform)" />
+                            }
+                        </div>
+
+                        <div class="recent-meta">
+                            @if (_editingId == set.Id)
+                            {
+                                <FluentTextField @bind-Value="_editValue" Immediate="true"
+                                                 Style="width: 100%;"
+                                                 @onkeyup="@(e => HandleRenameKey(e, () => CommitRenameSetAsync(set)))" />
+                            }
+                            else
+                            {
+                                <div class="recent-name">@SetLabel(set)</div>
+                                <div class="recent-sub">
+                                    @StreamSummary(set.Streams) · @Relative(set.LastOpened)
+                                </div>
+                            }
+                        </div>
+
+                        <div class="recent-actions">
+                            @if (_editingId == set.Id)
+                            {
+                                <FluentButton IconStart="@(new Icons.Regular.Size16.Checkmark())"
+                                              Appearance="Appearance.Accent" Size="ButtonSize.Small"
+                                              OnClick="() => CommitRenameSetAsync(set)" Title="Save name" />
+                                <FluentButton IconStart="@(new Icons.Regular.Size16.Dismiss())"
+                                              Appearance="Appearance.Stealth" Size="ButtonSize.Small"
+                                              OnClick="CancelRename" Title="Cancel" />
+                            }
+                            else
+                            {
+                                <FluentButton IconStart="@(new Icons.Regular.Size16.Play())"
+                                              Appearance="Appearance.Accent" Size="ButtonSize.Small"
+                                              OnClick="() => LoadSetAsync(set)">
+                                    Load
+                                </FluentButton>
+                                <FluentButton IconStart="@PinIcon(set.Pinned)"
+                                              Appearance="Appearance.Stealth" Size="ButtonSize.Small"
+                                              OnClick="() => History.ToggleStreamSetPinAsync(set.Id)"
+                                              Title="@(set.Pinned ? "Unpin" : "Pin")" />
+                                <FluentButton IconStart="@(new Icons.Regular.Size16.Rename())"
+                                              Appearance="Appearance.Stealth" Size="ButtonSize.Small"
+                                              OnClick="() => BeginRename(set.Id, SetLabel(set))" Title="Rename" />
+                                <FluentButton IconStart="@(new Icons.Regular.Size16.Delete())"
+                                              Appearance="Appearance.Stealth" Size="ButtonSize.Small"
+                                              OnClick="() => History.RemoveStreamSetAsync(set.Id)" Title="Remove" />
+                            }
+                        </div>
+                    </div>
+                }
+            </section>
+        }
+    </div>
+}
+
+@code {
+    /// <summary>True when shown inline on the empty viewer; false when shown in the toolbar dialog.</summary>
+    [Parameter] public bool Embedded { get; set; }
+
+    /// <summary>Invoked after a load/rejoin so a hosting dialog can close itself.</summary>
+    [Parameter] public EventCallback OnActionCompleted { get; set; }
+
+    private bool _loaded;
+    private bool _busy;
+    private string? _editingId;
+    private string _editValue = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        History.Changed += OnChanged;
+        await History.EnsureLoadedAsync();
+        _loaded = true;
+    }
+
+    private void OnChanged() => InvokeAsync(StateHasChanged);
+
+    private async Task LoadSetAsync(StreamSetEntry set)
+    {
+        await History.LoadStreamSetAsync(set);
+        await OnActionCompleted.InvokeAsync();
+    }
+
+    private async Task RejoinSessionAsync(SessionEntry session)
+    {
+        if (_busy)
+        {
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            // Bring back the streams this session was watching, then reconnect.
+            await History.LoadStreamsAsync(session.Streams);
+
+            var reachable = await Sync.ProbeSessionAsync(session.Id);
+            if (reachable)
+            {
+                await Sync.JoinSessionAsync(session.Id);
+                ToastService.ShowSuccess("Rejoining session…");
+                await OnActionCompleted.InvokeAsync();
+                return;
+            }
+
+            // Room is gone — ask before re-creating it under the same code.
+            var dialog = await DialogService.ShowConfirmationAsync(
+                "This watch-party room is no longer active. Re-create it as host so the same invite link works again?",
+                "Re-create",
+                "Cancel",
+                "Session ended");
+            var result = await dialog.Result;
+
+            if (!result.Cancelled)
+            {
+                await Sync.StartSessionAsync(session.Id);
+                ToastService.ShowSuccess("Session re-created — you're now hosting.");
+            }
+
+            await OnActionCompleted.InvokeAsync();
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private void BeginRename(string id, string current)
+    {
+        _editingId = id;
+        _editValue = current;
+    }
+
+    private void CancelRename()
+    {
+        _editingId = null;
+        _editValue = string.Empty;
+    }
+
+    private async Task CommitRenameSetAsync(StreamSetEntry set)
+    {
+        await History.RenameStreamSetAsync(set.Id, _editValue);
+        CancelRename();
+    }
+
+    private async Task CommitRenameSessionAsync(SessionEntry session)
+    {
+        await History.RenameSessionAsync(session.Id, _editValue);
+        CancelRename();
+    }
+
+    private async Task HandleRenameKey(KeyboardEventArgs e, Func<Task> commit)
+    {
+        if (e.Key == "Enter")
+        {
+            await commit();
+        }
+        else if (e.Key == "Escape")
+        {
+            CancelRename();
+        }
+    }
+
+    private string SetLabel(StreamSetEntry set) =>
+        string.IsNullOrWhiteSpace(set.Label) ? DerivedName(set.Streams) : set.Label!;
+
+    private string SessionLabel(SessionEntry session) =>
+        string.IsNullOrWhiteSpace(session.Label) ? DerivedName(session.Streams) : session.Label!;
+
+    private static string DerivedName(List<StreamRef> streams)
+    {
+        if (streams.Count == 0)
+        {
+            return "Empty session";
+        }
+
+        var names = streams.Select(s => s.Name).ToList();
+        var shown = string.Join(", ", names.Take(3));
+        return names.Count > 3 ? $"{shown} +{names.Count - 3}" : shown;
+    }
+
+    private static string StreamSummary(List<StreamRef> streams) =>
+        streams.Count == 1 ? "1 stream" : $"{streams.Count} streams";
+
+    private static Icon PinIcon(bool pinned) =>
+        pinned ? new Icons.Filled.Size16.Pin() : new Icons.Regular.Size16.Pin();
+
+    private static Icon PlatformIcon(string platform) => platform.ToLowerInvariant() switch
+    {
+        "twitch" => PlatformIcons.Twitch,
+        "youtube" => PlatformIcons.YouTube,
+        "kick" => PlatformIcons.Kick,
+        _ => PlatformIcons.YouTube,
+    };
+
+    private static string Relative(long unixMs)
+    {
+        var span = DateTimeOffset.UtcNow - DateTimeOffset.FromUnixTimeMilliseconds(unixMs);
+
+        if (span.TotalSeconds < 60)
+        {
+            return "just now";
+        }
+        if (span.TotalMinutes < 60)
+        {
+            return $"{(int)span.TotalMinutes}m ago";
+        }
+        if (span.TotalHours < 24)
+        {
+            return $"{(int)span.TotalHours}h ago";
+        }
+        if (span.TotalDays < 7)
+        {
+            return $"{(int)span.TotalDays}d ago";
+        }
+
+        return $"{(int)(span.TotalDays / 7)}w ago";
+    }
+
+    public void Dispose() => History.Changed -= OnChanged;
+}

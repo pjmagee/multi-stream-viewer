@@ -17,12 +17,8 @@
     }
     else
     {
-        <div class="no-streams-message">
-            <div class="empty-content">
-                <FluentIcon Value="@(new Icons.Regular.Size48.VideoClip())" Color="Color.Disabled" />
-                <FluentLabel Typo="Typography.H5">No streams added yet</FluentLabel>
-                <FluentLabel>Add your first stream using the form above to get started!</FluentLabel>
-            </div>
+        <div class="recent-launch">
+            <RecentPicker Embedded="true" />
         </div>
     }
 </div>

@@ -59,6 +59,10 @@
                 <!-- Watch-together session sync -->
                 <SyncControl />
 
+                <!-- Recent sessions & stream sets -->
+                <FluentButton IconStart="@(new Icons.Regular.Size16.History())" Appearance="Appearance.Stealth"
+                    OnClick="OpenRecentDialog" Title="Recent sessions & stream sets" />
+
                 <FluentDivider Role="DividerRole.Separator" Orientation="Orientation.Vertical" />
 
                 <!-- Universal Input -->
@@ -193,6 +197,29 @@
     </FluentDialogFooter>
 </FluentDialog>
 
+<!-- Recent sessions & stream sets -->
+<FluentDialog @bind-Hidden="@_isRecentDialogHidden" Modal="true" TrapFocus="true" PreventScroll="true"
+    AriaLabel="Recent sessions and stream sets">
+    <FluentDialogHeader ShowDismiss="true">
+        <FluentStack VerticalAlignment="VerticalAlignment.Center">
+            <FluentIcon Value="@(new Icons.Regular.Size24.History())" />
+            <FluentLabel Typo="Typography.PaneHeader">
+                Recent
+            </FluentLabel>
+        </FluentStack>
+    </FluentDialogHeader>
+
+    <FluentDialogBody>
+        <RecentPicker OnActionCompleted="CloseRecentDialog" />
+    </FluentDialogBody>
+
+    <FluentDialogFooter>
+        <FluentButton Appearance="Appearance.Neutral" OnClick="CloseRecentDialog">
+            Close
+        </FluentButton>
+    </FluentDialogFooter>
+</FluentDialog>
+
 @code {
     [Parameter] public string? Segments { get; set; }
 
@@ -204,6 +231,7 @@
 
     private string _universalInput = string.Empty;
     private bool _isManageDialogHidden = true;
+    private bool _isRecentDialogHidden = true;
     private bool _showInputHelp = false;
     private bool _isFullscreen = false;
     private bool _isLoadingFromUrl = false;
@@ -337,6 +365,16 @@
     private void CloseManageDialog()
     {
         _isManageDialogHidden = true;
+    }
+
+    private void OpenRecentDialog()
+    {
+        _isRecentDialogHidden = false;
+    }
+
+    private void CloseRecentDialog()
+    {
+        _isRecentDialogHidden = true;
     }
 
     private void RemoveStream(StreamInfo stream)

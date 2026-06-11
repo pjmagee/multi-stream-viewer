@@ -24,17 +24,14 @@
     max-width: 100%;
 }
 
-.no-streams-message {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 400px;
-    width: 100%;
-}
-
-.empty-content {
+.recent-launch {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    gap: 16px;
+    width: 100%;
+    height: 100%;
+    min-height: 60vh;
+    overflow-y: auto;
+    padding: 24px 16px;
 }

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Recent sessions & stream sets: the app now remembers, in `localStorage`, the
+  stream combinations and watch-together sessions you open, so a fresh page load
+  offers them as relaunchable "preconfigurations". Stream sets are recorded
+  automatically (deduped by their channels); sessions are saved with a snapshot
+  of the streams they were watching.
+- A "Jump back in" picker on the empty viewer, plus a "Recent" toolbar button to
+  reopen it any time. Entries can be pinned (kept regardless of age), renamed,
+  and removed.
+- Relaunch a stream set with one click, or rejoin a past session. If the
+  session's PeerJS room is gone, the app detects it quickly and offers to
+  re-create it as host under the same code so the original invite link works
+  again.
+
 ## [0.2.0] - 2026-06-10
 
 ### Added

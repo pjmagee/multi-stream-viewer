@@ -17,6 +17,7 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.AddFluentUIComponents();
 builder.Services.AddSingleton<StreamService>();
 builder.Services.AddSingleton<SyncService>();
+builder.Services.AddSingleton<HistoryService>();
 builder.Services.AddSingleton<AppInfoService>();
 
 // Build first to access JS runtime, then detect the true browser host.
@@ -36,5 +37,9 @@ catch
 {
     // If JS interop is unavailable, StreamInfo falls back to defaults
 }
+
+// Eagerly resolve so it subscribes to stream/session changes from launch and
+// records history even before the user opens the "Recent" picker.
+host.Services.GetRequiredService<HistoryService>();
 
 await host.RunAsync();

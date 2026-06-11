@@ -51,6 +51,55 @@ export function broadcast(json) {
     }
 }
 
+// Quick reachability check for a saved session's host id, used when relaunching
+// a session from history. Resolves true if a data channel to the host opens
+// within the timeout, false if the broker reports the id is unregistered (the
+// room is gone) or we time out. Uses a throwaway peer so it never disturbs an
+// active session, and tears it down on either outcome.
+export function probeHost(hostId, timeoutMs) {
+    return new Promise((resolve) => {
+        let settled = false;
+        let probe;
+
+        const finish = (reachable) => {
+            if (settled) {
+                return;
+            }
+            settled = true;
+            clearTimeout(timer);
+            try { if (probe) probe.destroy(); } catch { /* already gone */ }
+            resolve(reachable);
+        };
+
+        const timer = setTimeout(() => finish(false), timeoutMs || 5000);
+
+        try {
+            probe = new Peer();
+        } catch {
+            finish(false);
+            return;
+        }
+
+        probe.on("open", () => {
+            const conn = probe.connect(hostId, { reliable: true });
+            if (!conn) {
+                finish(false);
+                return;
+            }
+            conn.on("open", () => finish(true));
+            conn.on("error", () => finish(false));
+        });
+
+        probe.on("error", (err) => {
+            const type = err && err.type ? err.type : String(err);
+            // peer-unavailable => the host id isn't registered => room is gone.
+            if (type === "peer-unavailable") {
+                finish(false);
+            }
+        });
+    });
+}
+
 export function leave() {
     intentionalLeave = true;
     if (reconnectTimer) {
