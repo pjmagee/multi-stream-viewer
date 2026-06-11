@@ -33,9 +33,11 @@
                 <FluentLabel Typo="Typography.Body" Style="font-weight: 600; font-size: 16px;">
                     Multi-Stream Viewer
                 </FluentLabel>
-                <FluentLabel Typo="Typography.Body" Color="Color.Disabled" Style="margin-left: 4px; font-size: 12px;">
-                    v@(AppInfo.Version)
-                </FluentLabel>
+                <FluentButton id="version-info" Appearance="Appearance.Stealth" Size="ButtonSize.Small"
+                    IconStart="@(new Icons.Regular.Size16.Tag())" aria-label="@($"Version {AppInfo.DisplayVersion}")" />
+                <FluentTooltip Anchor="version-info" Position="TooltipPosition.Bottom">
+                    v@(AppInfo.DisplayVersion)@(string.IsNullOrEmpty(AppInfo.CommitHash) ? "" : $" · {AppInfo.CommitHash}")
+                </FluentTooltip>
                 <a class="bmc-link" href="https://www.buymeacoffee.com/pjmagee" target="_blank"
                     rel="noopener noreferrer" title="Buy me a coffee">
                     ☕ Buy me a coffee

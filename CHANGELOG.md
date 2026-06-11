@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   again.
 - A "Buy me a coffee" support link in the header.
 
+### Changed
+
+- The app version is now a compact icon in the header that reveals the version
+  and commit on hover, instead of a long inline label (frees up header space,
+  especially on small screens).
+
 ## [0.2.0] - 2026-06-10
 
 ### Added
