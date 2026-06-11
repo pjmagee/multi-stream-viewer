@@ -54,7 +54,7 @@ Visit: `https://multi-stream-viewer.app/`
 
 - Blazor WebAssembly (.NET 10)
 - Microsoft FluentUI Components
-- GitHub Pages deployment
+- Cloudflare Pages deployment
 
 ## License
 
