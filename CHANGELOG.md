@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   session's PeerJS room is gone, the app detects it quickly and offers to
   re-create it as host under the same code so the original invite link works
   again.
+- A "Buy me a coffee" support link in the header.
 
 ## [0.2.0] - 2026-06-10
 
