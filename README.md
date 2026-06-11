@@ -26,7 +26,7 @@ dotnet run
 
 ### Live Demo
 
-Visit: `https://msv.ghp.magaoidh.pro/`
+Visit: `https://multi-stream-viewer.app/`
 
 ## Usage
 
