@@ -2,3 +2,8 @@
 *.json binary
 *.css binary
 *.html binary
+
+# Shell scripts and the Cloudflare _redirects file must stay LF so they work on
+# Linux build agents (a CRLF shebang breaks the script on Cloudflare's builder).
+*.sh text eol=lf
+_redirects text eol=lf

@@ -203,7 +203,7 @@ public class StreamInfo
 #if DEBUG
             return "localhost";
 #else
-            return "msv.ghp.magaoidh.pro";
+            return "multi-stream-viewer.app";
 #endif
         }
     }
