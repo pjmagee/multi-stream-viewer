@@ -49,6 +49,29 @@
     flex-shrink: 0;
 }
 
+/* GitHub source link */
+.gh-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    color: var(--neutral-foreground-rest);
+    text-decoration: none;
+}
+
+.gh-link:hover {
+    background-color: var(--neutral-fill-stealth-hover);
+}
+
+.gh-link svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
 /* Buy Me a Coffee support link */
 .bmc-link {
     display: inline-flex;
